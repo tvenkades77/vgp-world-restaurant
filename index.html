@@ -1,0 +1,2582 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VGP WORLD RESTAURANT - Ultra Gold POS & ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    body { font-size: 16px; background-color: #ffffff; color: #1f2937; }
+    .gold-banner {
+      background: linear-gradient(135deg, #fef9c3 0%, #facc15 45%, #d97706 100%);
+      color: #3b1d00;
+    }
+    .gold-btn {
+      background: linear-gradient(135deg, #fde047 0%, #eab308 55%, #ca8a04 100%);
+      color: #2c1500;
+      border: 1px solid #b45309;
+    }
+    .gold-btn:hover { filter: brightness(1.04); }
+    @page {
+      size: 58mm auto;
+      margin: 0mm;
+    }
+    @media print {
+      html, body {
+        width: 58mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+      }
+      body * { visibility: hidden; }
+      #printArea, #printArea * { visibility: visible; }
+      #printArea {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 52mm;
+        max-width: 52mm;
+        box-sizing: border-box;
+        font-family: 'Courier New', monospace;
+        font-size: 11px;
+        line-height: 1.35;
+        color: #000000;
+        padding: 2mm 1.5mm;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      #printArea table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+      }
+      #printArea td {
+        vertical-align: top;
+        padding: 1.5px 0;
+      }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-800 min-h-screen">
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-amber-50 via-yellow-100 to-amber-200">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 space-y-4 border-4 border-yellow-400">
+      <div class="text-center gold-banner rounded-xl p-4 border-2 border-amber-500">
+        <h1 id="loginBrandTitle" class="text-2xl font-extrabold text-amber-950">VGP WORLD RESTAURANT</h1>
+        <p id="loginBranchAddr" class="text-sm font-bold text-amber-900 mt-1">வையம்பட்டி (Vaiyampatti)</p>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-bold mb-1 text-gray-800">பயனர் பெயர் (Select User)</label>
+          <select id="loginUserSlot" class="w-full border-2 border-yellow-400 rounded-xl px-3 py-2.5 text-base font-bold bg-yellow-50 text-gray-900"></select>
+        </div>
+        <div>
+          <label class="block text-sm font-bold mb-1 text-gray-800">பாஸ்வேர்ட் (Password)</label>
+          <input id="loginPass" type="password" placeholder="Password" class="w-full border-2 border-yellow-400 rounded-xl px-3 py-2.5 text-base bg-white" />
+          <p class="text-xs text-gray-600 mt-1">
+            Default Passwords: Owner/Admin <code>admin123</code> | Admin 2 <code>adm2123</code> | Manager <code>mgr123</code> | Cashier <code>cash123</code> | Staff 1 <code>stf1123</code> | Staff 2 <code>stf2123</code> | Kitchen <code>kit123</code>
+          </p>
+        </div>
+        <button onclick="doLogin()" class="w-full gold-btn font-extrabold py-3 rounded-xl text-lg shadow">உள்நுழைக / Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="appScreen" class="hidden min-h-screen flex flex-col no-print bg-white">
+
+    <!-- Header -->
+    <header class="gold-banner border-b-4 border-amber-500 shadow">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h1 id="hdrCompanyName" class="text-2xl font-extrabold text-amber-950">VGP WORLD RESTAURANT</h1>
+          <p id="hdrCompanyAddr" class="text-xs sm:text-sm font-bold text-amber-950">வையம்பட்டி (Vaiyampatti)</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="bg-white border-2 border-amber-600 rounded-lg px-2.5 py-1 text-xs font-extrabold text-amber-950 flex items-center gap-1">
+            <span>📅 Date:</span>
+            <input id="globalDateInp" type="date" onchange="changeGlobalDate(this.value)" class="bg-transparent font-extrabold text-amber-950 outline-none" />
+          </div>
+          <span id="roleBadge" class="bg-white text-amber-950 border-2 border-amber-600 font-extrabold text-xs sm:text-sm px-3 py-1.5 rounded-lg"></span>
+          <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm px-3 py-1.5 rounded-lg">Logout</button>
+        </div>
+      </div>
+
+      <!-- Language Selector Above Menu Bar -->
+      <div class="bg-amber-50 border-t-2 border-amber-400 px-4 py-1.5 flex flex-wrap items-center justify-between gap-2">
+        <span class="text-xs font-extrabold text-amber-950">மெனு மொழி (Menu Language):</span>
+        <div class="flex items-center gap-2">
+          <button id="btnLangTa" onclick="setMenuLanguage('ta')" class="gold-btn font-extrabold text-xs px-3 py-1 rounded-lg">தமிழ் (Tamil)</button>
+          <button id="btnLangEn" onclick="setMenuLanguage('en')" class="bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg">English</button>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav id="navBar" class="bg-yellow-100 px-4 py-2 flex flex-wrap items-center gap-2 text-sm font-bold border-t border-amber-400"></nav>
+
+      <!-- Cloud Save & Live Sync Bar -->
+      <div class="bg-amber-50 border-t border-amber-300 px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-amber-950">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span>☁️ Cloud URL:</span>
+          <input id="vgpCloudUrlInput" type="text" placeholder="Paste Google Drive Apps Script / Render URL" class="border border-amber-500 rounded-lg px-2.5 py-1 text-xs bg-white w-56 sm:w-72 font-mono" />
+          <input id="vgpCloudKeyInput" type="password" value="VGP_SECRET_KEY_2026" placeholder="Secret Key" class="border border-amber-500 rounded-lg px-2 py-1 text-xs bg-white w-32 font-mono" />
+          <button onclick="vgpSaveAndSyncCloud()" class="gold-btn font-extrabold px-3 py-1 rounded-lg text-xs">Save & Cloud Sync</button>
+        </div>
+        <span id="vgpCloudStatusText">💾 Local Only</span>
+      </div>
+
+      <!-- Clickable Cash Summary Strip -->
+      <div class="bg-white text-gray-900 border-b-2 border-yellow-400 px-4 py-2.5">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+          <button onclick="openCashDrill('IN')" class="flex items-center justify-between bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-xl px-3.5 py-2 text-left transition">
+            <span class="font-bold text-amber-950">💵 பணம் உள்ளே வந்தது (Cash In)</span>
+            <span id="cashInVal" class="font-extrabold text-emerald-700 text-base underline">₹ 0.00</span>
+          </button>
+          <button onclick="openCashDrill('OUT')" class="flex items-center justify-between bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-xl px-3.5 py-2 text-left transition">
+            <span class="font-bold text-amber-950">💸 செலவான பணம் (Cash Out)</span>
+            <span id="cashOutVal" class="font-extrabold text-rose-700 text-base underline">₹ 0.00</span>
+          </button>
+          <button onclick="openCashDrill('ALL')" class="flex items-center justify-between gold-banner hover:brightness-105 border-2 border-amber-600 rounded-xl px-3.5 py-2 text-left transition">
+            <span class="font-extrabold text-amber-950">🏦 கல்லா இருப்பு (Cash in Hand)</span>
+            <span id="cashHandVal" class="font-extrabold text-amber-950 text-base underline">₹ 0.00</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Cash Drilldown -->
+    <div id="cashDrillPanel" class="hidden max-w-7xl w-full mx-auto px-4 pt-3">
+      <div class="bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4 shadow">
+        <div class="flex items-center justify-between border-b border-yellow-300 pb-2 mb-2">
+          <h3 id="cashDrillTitle" class="font-extrabold text-amber-950">பணப் பரிவர்த்தனை விவரம்</h3>
+          <button onclick="document.getElementById('cashDrillPanel').classList.add('hidden')" class="text-sm font-extrabold text-rose-700">மூடு [×]</button>
+        </div>
+        <div id="cashDrillList" class="space-y-1.5 max-h-52 overflow-y-auto text-sm"></div>
+      </div>
+    </div>
+
+    <!-- Zoomable Bill Photo Modal -->
+    <div id="photoModal" class="hidden fixed inset-0 bg-amber-950/75 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-2xl w-full p-4 border-4 border-yellow-400 space-y-3">
+        <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-2">
+          <h3 id="photoModalTitle" class="font-extrabold text-amber-950 text-sm sm:text-base">பில் காப்பி (JPEG Zoom)</h3>
+          <div class="flex items-center gap-2">
+            <button onclick="adjustZoom(0.25)" class="gold-btn font-extrabold px-2.5 py-1 rounded-lg text-xs">🔍 + Zoom</button>
+            <button onclick="adjustZoom(-0.25)" class="bg-amber-100 text-amber-950 font-extrabold px-2.5 py-1 rounded-lg text-xs">🔍 - Zoom</button>
+            <button onclick="resetZoom()" class="bg-amber-100 text-amber-950 font-bold px-2.5 py-1 rounded-lg text-xs">100%</button>
+            <button onclick="document.getElementById('photoModal').classList.add('hidden')" class="text-rose-700 font-extrabold text-sm">மூடு [×]</button>
+          </div>
+        </div>
+        <div class="overflow-auto max-h-[70vh] border rounded-xl bg-amber-50 flex items-center justify-center p-2">
+          <img id="photoModalImg" src="" alt="Bill Copy" style="transform: scale(1); transform-origin: center center; transition: transform 0.15s ease;" class="max-w-full rounded-lg" />
+        </div>
+      </div>
+    </div>
+
+    <main class="max-w-7xl w-full mx-auto p-4 flex-1 space-y-5 bg-white">
+
+      <!-- MENU 1: ORDER & BILL -->
+      <section id="tab-pos" class="space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-yellow-50 border border-yellow-300 rounded-2xl px-4 py-2 text-xs font-extrabold text-amber-950">
+          <div class="flex flex-wrap items-center gap-2">
+            <span>டேபிள் ஸ்டேட்டஸ்:</span>
+            <span class="px-2.5 py-1 rounded-lg bg-sky-200 text-sky-950 border border-sky-400">🔵 ஆர்டர்</span>
+            <span class="px-2.5 py-1 rounded-lg bg-amber-300 text-amber-950 border border-amber-500">🟠 KOT & TV</span>
+            <span class="px-2.5 py-1 rounded-lg bg-emerald-300 text-emerald-950 border border-emerald-600">🟢 பணம் தர தயார்</span>
+            <span class="px-2.5 py-1 rounded-lg bg-white text-gray-700 border border-gray-300">⚪ காலி</span>
+          </div>
+          <span>📅 Date: <strong class="active-date-text"></strong></span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div class="lg:col-span-7 space-y-4">
+            <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <h2 class="text-lg font-extrabold text-amber-950">1. டேபிள்கள் & ஆர்டர் எடுப்பவர் (Salesperson)</h2>
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <select id="activeStaff" class="border-2 border-yellow-400 rounded-xl px-2.5 py-1.5 text-sm font-bold bg-yellow-50"></select>
+                  <button onclick="quickAddEmployeeFromPos()" class="gold-btn font-extrabold px-2.5 py-1.5 rounded-xl text-xs">+ Add Employee</button>
+                  <input id="quickAddTable" type="text" placeholder="T-17" class="border rounded-xl px-2 py-1.5 text-sm w-20" />
+                  <button onclick="quickTableAction('add')" class="gold-btn font-bold px-2 py-1.5 rounded-xl text-xs">+ Table</button>
+                  <button onclick="quickTableAction('del')" class="bg-rose-100 text-rose-800 font-bold px-2 py-1.5 rounded-xl text-xs">- Table</button>
+                </div>
+              </div>
+              <div id="tableGrid" class="grid grid-cols-4 sm:grid-cols-5 gap-2"></div>
+            </div>
+
+            <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <h2 class="text-lg font-extrabold text-amber-950">2. மெனு ஆர்டர் பில் (படங்களுடன்)</h2>
+                <input id="menuSearch" oninput="renderMenuGrid()" type="text" placeholder="தேடு / Search..." class="border-2 border-yellow-400 rounded-xl px-3 py-1.5 text-base w-full sm:w-56" />
+              </div>
+              <div id="menuGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[540px] overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b-2 border-yellow-300 pb-2.5 mb-3">
+                <div>
+                  <h2 class="text-xl font-extrabold text-amber-950">டேபிள்: <span id="currentTableLabel">T-01</span></h2>
+                  <p class="text-xs text-gray-600 font-semibold">📅 <span class="active-date-text"></span> | ஆர்டர் எடுப்பவர்: <span id="currentOrderStaff">-</span></p>
+                </div>
+                <span id="tableStatusBadge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-yellow-100 text-amber-950 border border-yellow-400">காலி</span>
+              </div>
+              <div id="orderItemsList" class="space-y-2 max-h-72 overflow-y-auto mb-3"></div>
+            </div>
+
+            <div class="border-t-2 border-yellow-300 pt-3 space-y-2.5">
+              <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+                <div>
+                  <label class="block text-amber-950 mb-0.5">டிஸ்கவுண்ட் (Discount ₹)</label>
+                  <input id="billDiscountInp" type="number" step="0.5" value="0" oninput="renderAll()" class="w-full border-2 border-yellow-300 rounded-xl px-2.5 py-1.5 text-sm bg-yellow-50 font-extrabold" />
+                </div>
+                <div>
+                  <label class="block text-amber-950 mb-0.5">ரவுண்ட் ஆஃப் (Round Off ₹)</label>
+                  <input id="billRoundOffInp" type="number" step="0.5" value="0" oninput="renderAll()" class="w-full border-2 border-yellow-300 rounded-xl px-2.5 py-1.5 text-sm bg-yellow-50 font-extrabold" />
+                </div>
+              </div>
+
+              <div class="flex justify-between text-xs text-gray-600 font-semibold">
+                <span>Sub Total: ₹<span id="orderSubTotal">0.00</span></span>
+                <span>Disc: -₹<span id="orderDiscShow">0.00</span> | R/O: ₹<span id="orderRoShow">0.00</span></span>
+              </div>
+
+              <div class="flex justify-between text-xl font-extrabold text-amber-950">
+                <span>நிகர பில் (Net Total):</span>
+                <span>₹ <span id="orderTotal">0.00</span></span>
+              </div>
+
+              <button onclick="printKOT()" class="w-full gold-btn font-extrabold py-3 rounded-xl text-base shadow">🖨️ கிச்சன் KOT பிரிண்ட் & TV அப்டேட்</button>
+              <button onclick="markReadyToPay()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-2 rounded-xl text-sm">🟢 சாப்பிட்டு முடிந்தது — பணம் தர தயார்</button>
+              <div class="grid grid-cols-3 gap-2">
+                <button onclick="settleBill('Cash')" class="gold-banner border-2 border-amber-600 font-extrabold py-2.5 rounded-xl text-sm">💵 Cash</button>
+                <button onclick="settleBill('UPI')" class="gold-banner border-2 border-amber-600 font-extrabold py-2.5 rounded-xl text-sm">📱 UPI</button>
+                <button onclick="settleBill('Card')" class="gold-banner border-2 border-amber-600 font-extrabold py-2.5 rounded-xl text-sm">💳 Card</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settled Bills & Reprint Bill Copy Box -->
+        <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-base font-extrabold text-amber-950">🧾 முடிந்த பில்கள் & மறுபிரிண்ட் (Settled Bills — Reprint Copy)</h3>
+            <span class="text-xs text-gray-500">எந்த பில்லையும் மீண்டும் பிரிண்ட் அவுட் எடுக்க Reprint அழுத்தவும்</span>
+          </div>
+          <div id="settledBillsReprintList" class="space-y-1.5 max-h-56 overflow-y-auto text-xs sm:text-sm"></div>
+        </div>
+
+        <div class="bg-amber-50 border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-2">
+          <h3 class="text-base font-extrabold text-amber-950">🚫 கேன்சல் செய்யப்பட்ட ஐட்டங்கள் ரிப்போர்ட் (Cancelled Items Log)</h3>
+          <div id="cancelledItemsReport" class="space-y-1 text-xs sm:text-sm"></div>
+        </div>
+
+        <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="text-lg font-extrabold text-amber-950">✨ புதிய ஐட்டம் சேர் (Tanglish → தமிழ்)</h2>
+            <span id="priceEditNotice" class="text-xs font-bold px-3 py-1 rounded-full bg-yellow-100 text-amber-950 border border-yellow-400"></span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
+            <input id="quickEng" oninput="quickTanglishToTamil()" type="text" placeholder="Tanglish (Ex: paniyaram)" class="border-2 border-yellow-300 rounded-xl px-3 py-2 text-base" />
+            <input id="quickTam" type="text" placeholder="தமிழ் பெயர் (பணியாரம்)" class="border-2 border-yellow-400 rounded-xl px-3 py-2 text-base font-bold bg-yellow-50" />
+            <input id="quickPrice" type="number" placeholder="விலை ₹" class="border-2 border-yellow-300 rounded-xl px-3 py-2 text-base" />
+            <input id="quickImg" type="file" accept="image/*" class="border-2 border-yellow-300 rounded-xl px-2 py-1.5 text-xs bg-white" />
+            <button onclick="quickAddMenuItem()" class="gold-btn font-extrabold py-2 px-4 rounded-xl text-base shadow">+ சேர்</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENU 2: KITCHEN TV -->
+      <section id="tab-kitchen" class="hidden space-y-4">
+        <div class="bg-amber-50 text-amber-950 p-5 rounded-2xl shadow-lg border-4 border-yellow-400">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-yellow-300 pb-3 mb-4">
+            <div>
+              <h2 class="text-2xl font-extrabold text-amber-950">📺 KITCHEN TV & KOT DISPLAY (📅 <span class="active-date-text"></span>)</h2>
+              <p class="text-sm font-semibold text-amber-900">TV-யில் CPU/Browser திறந்து முழுத் திரையில் (F11) வைக்கவும்</p>
+            </div>
+            <button onclick="window.print()" class="gold-btn font-extrabold px-4 py-2 rounded-xl text-sm">🖨️ KOT Print</button>
+          </div>
+          <div id="kitchenTvGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+      </section>
+
+      <!-- MENU 3: PURCHASE BILL & PARTY MASTER -->
+      <section id="tab-purchase" class="hidden space-y-5">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div class="lg:col-span-7 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-3">
+            <h2 class="text-lg font-extrabold text-amber-950">🧾 பர்சேஸ் பில் (📅 <span class="active-date-text"></span>)</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-yellow-50 p-3 rounded-xl border border-yellow-300">
+              <div>
+                <label class="block text-xs font-bold mb-1">பார்ட்டி (Party)</label>
+                <div class="flex gap-1">
+                  <select id="purPartySelect" class="border rounded-xl px-2 py-1.5 text-sm font-bold flex-1 bg-white"></select>
+                  <button onclick="openNewPartyBox()" class="gold-btn font-extrabold px-2.5 py-1.5 rounded-xl text-xs">+ Add Party</button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-bold mb-1">பில் போட்டோ (JPEG OCR)</label>
+                <input id="purBillPhotoFile" onchange="handleBillPhotoUpload(this)" type="file" accept="image/jpeg,image/jpg,image/*" class="w-full border rounded-xl px-2 py-1.5 text-xs bg-white" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold mb-1">பணம் கொடுத்ததா? (Paid)</label>
+                <select id="purPaidChoice" class="w-full border rounded-xl px-2 py-1.5 text-sm font-bold bg-white">
+                  <option value="NO">No</option>
+                  <option value="YES">Yes (Freeze)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="bg-amber-50/60 p-2.5 rounded-xl border border-yellow-300 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-950">OCR / பில் விவரம்:</span>
+                <button onclick="autoExtractFromBillText()" class="gold-btn font-extrabold px-3 py-1 rounded-lg text-xs">⚡ Auto-Extract</button>
+              </div>
+              <textarea id="billRawText" rows="2" placeholder="பில் போட்டோ அப்லோட் செய்தால் தானாக வரும்..." class="w-full border rounded-xl px-2.5 py-1.5 text-xs bg-white"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-6 gap-2">
+              <input id="pItemEng" oninput="autoPurItemTamil()" type="text" placeholder="Item Eng (arisi)" class="border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-xs sm:text-sm" />
+              <input id="pItemTam" type="text" placeholder="பொருள் (தமிழ்)" class="border-2 border-yellow-400 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-bold bg-yellow-50" />
+              <input id="pQty" oninput="calcPurLine()" type="number" step="0.01" placeholder="Qty" class="border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-xs sm:text-sm" />
+              <input id="pRate" oninput="calcPurLine()" type="number" step="0.01" placeholder="Unit Rate ₹" class="border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-xs sm:text-sm" />
+              <input id="pGstPct" oninput="calcPurLine()" type="number" step="0.5" value="5" placeholder="GST %" class="border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-xs sm:text-sm" />
+              <select id="pGstType" onchange="calcPurLine()" class="border-2 border-yellow-300 rounded-xl px-2 py-2 text-xs font-bold bg-yellow-50">
+                <option value="CGST_SGST">CGST + SGST</option>
+                <option value="IGST">IGST</option>
+              </select>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-yellow-50 p-2.5 rounded-xl border border-yellow-300 text-xs sm:text-sm">
+              <div>
+                <span>Base: <strong>₹<span id="pBaseAmt">0.00</span></strong></span> |
+                <span>CGST: <strong>₹<span id="pCgstAmt">0.00</span></strong></span> |
+                <span>SGST: <strong>₹<span id="pSgstAmt">0.00</span></strong></span> |
+                <span>IGST: <strong>₹<span id="pIgstAmt">0.00</span></strong></span> |
+                <span class="text-base font-extrabold text-amber-950">Total: ₹<span id="pLineTotal">0.00</span></span>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="addOrUpdateDraftItem()" class="gold-btn font-extrabold px-3.5 py-1.5 rounded-xl text-xs">+ Add / Modify Item</button>
+                <button onclick="saveFullPurchaseBill()" class="gold-banner border-2 border-amber-600 font-extrabold px-4 py-1.5 rounded-xl text-xs">💾 Save Bill</button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left border-collapse">
+                <thead>
+                  <tr class="bg-yellow-100 border-b border-yellow-300">
+                    <th class="p-2">தேதி</th>
+                    <th class="p-2">பொருள்</th>
+                    <th class="p-2">Qty</th>
+                    <th class="p-2">Rate</th>
+                    <th class="p-2">CGST</th>
+                    <th class="p-2">SGST</th>
+                    <th class="p-2">IGST</th>
+                    <th class="p-2">Total</th>
+                    <th class="p-2">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="draftItemsBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 space-y-4">
+            <div id="newPartyCard" class="hidden bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4 space-y-2">
+              <h3 class="font-extrabold text-sm text-amber-950">+ புதிய பார்ட்டி / சப்ளையர் / கஸ்டமர் ப்ரொபைல்</h3>
+              <input id="pmName" type="text" placeholder="பெயர்" class="w-full border rounded-xl px-3 py-1.5 text-sm bg-white" />
+              <input id="pmAddr" type="text" placeholder="முகவரி" class="w-full border rounded-xl px-3 py-1.5 text-sm bg-white" />
+              <div class="grid grid-cols-3 gap-2">
+                <input id="pmPhone" type="text" placeholder="Mobile" class="border rounded-xl px-2.5 py-1.5 text-xs bg-white" />
+                <input id="pmGst" type="text" placeholder="GSTIN" class="border rounded-xl px-2.5 py-1.5 text-xs bg-white" />
+                <input id="pmAcc" type="text" placeholder="Bank A/c No" class="border rounded-xl px-2.5 py-1.5 text-xs bg-white" />
+              </div>
+              <div class="flex gap-2">
+                <button onclick="saveNewParty()" class="gold-btn font-extrabold px-3 py-1.5 rounded-xl text-xs">சேமி</button>
+                <button onclick="document.getElementById('newPartyCard').classList.add('hidden')" class="bg-amber-100 text-amber-950 font-bold px-3 py-1.5 rounded-xl text-xs">ரத்து</button>
+              </div>
+            </div>
+
+            <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-2">
+              <h3 class="font-extrabold text-base text-amber-950">🏢 மாஸ்டர் ஃபைல் (Party / Customer Profile)</h3>
+              <div id="partyMasterList" class="space-y-1.5 max-h-44 overflow-y-auto text-xs"></div>
+            </div>
+
+            <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-2">
+              <h3 class="font-extrabold text-base text-amber-950">📷 JPEG பில் காப்பிகள் (Zoom & Paid Freeze)</h3>
+              <div id="savedBillsList" class="space-y-2 max-h-72 overflow-y-auto text-xs"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENU 4: PAYMENT & RECEIPT -->
+      <section id="tab-ledger" class="hidden space-y-4">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div class="lg:col-span-5 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-3">
+            <h2 class="text-lg font-extrabold text-amber-950">📒 பேமெண்ட் & ரசீது (📅 <span class="active-date-text"></span>)</h2>
+            <div class="space-y-1">
+              <label class="block text-xs font-bold">லெட்ஜர் கேட்டகிரி</label>
+              <div class="flex gap-1.5">
+                <select id="ldgCat" class="border-2 border-yellow-400 rounded-xl px-3 py-2 text-sm font-bold bg-yellow-50 flex-1"></select>
+                <button onclick="createNewLedgerCategory()" class="gold-btn font-extrabold px-3 py-2 rounded-xl text-xs">+ Add Ledger</button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">பார்ட்டி / எம்ப்ளாயி / நபர் பெயர்</label>
+              <select id="ldgPartySelect" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 text-sm font-bold bg-white"></select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <select id="ldgMode" class="border rounded-xl px-2.5 py-2 text-sm font-bold">
+                <option value="Cash">Cash</option>
+                <option value="UPI">UPI</option>
+                <option value="Card">Card</option>
+              </select>
+              <select id="ldgDir" class="border rounded-xl px-2.5 py-2 text-sm font-bold">
+                <option value="OUT">கொடுத்தது / செலவு (Out)</option>
+                <option value="IN">பெற்றது / வரவு (In)</option>
+              </select>
+            </div>
+            <input id="ldgAmt" type="number" placeholder="தொகை ₹" class="w-full border rounded-xl px-3 py-2 text-sm" />
+            <input id="ldgNote" type="text" placeholder="குறிப்பு (Note)" class="w-full border rounded-xl px-3 py-2 text-sm" />
+            <button onclick="saveLedgerEntry()" class="w-full gold-btn font-extrabold py-2.5 rounded-xl text-sm shadow">+ பதிவு & ரசீது சேமி</button>
+          </div>
+
+          <div class="lg:col-span-7 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-2">
+            <h2 class="text-lg font-extrabold text-amber-950">லெட்ஜர் & ரசீது பட்டியல்</h2>
+            <div id="ledgerEntriesBox" class="space-y-2 max-h-96 overflow-y-auto text-xs sm:text-sm"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENU 5: STOCK & INVENTORY -->
+      <section id="tab-stock" class="hidden space-y-5">
+        <div class="bg-white border-2 border-yellow-400 rounded-2xl p-5 shadow-sm space-y-4">
+          <h2 class="text-xl font-extrabold text-amber-950">📦 ஸ்டாக் & இன்வெண்டரி (📅 <span class="active-date-text"></span>)</h2>
+
+          <div>
+            <h3 class="text-base font-extrabold text-amber-950 mb-2">🍽️ விற்ற உணவுப் பொருட்கள் ரிப்போர்ட் (Sold Qty & Amount)</h3>
+            <div class="overflow-x-auto border rounded-xl">
+              <table class="w-full text-xs sm:text-sm text-left border-collapse">
+                <thead>
+                  <tr class="bg-yellow-100 border-b border-yellow-300">
+                    <th class="p-2">தேதி</th>
+                    <th class="p-2">உணவு</th>
+                    <th class="p-2">விற்ற அளவு</th>
+                    <th class="p-2">விலை ₹</th>
+                    <th class="p-2">விற்பனைத் தொகை ₹</th>
+                    <th class="p-2">அடக்க செலவு ₹</th>
+                  </tr>
+                </thead>
+                <tbody id="soldItemsReportBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 bg-amber-50 p-3 rounded-xl border border-yellow-300">
+            <select id="stkItemSelect" class="border-2 border-yellow-300 rounded-xl px-3 py-2 text-sm font-bold bg-white"></select>
+            <input id="stkOpenInput" type="number" step="0.1" placeholder="Opening Stock" class="border-2 border-yellow-300 rounded-xl px-3 py-2 text-sm bg-white" />
+            <input id="stkCloseInput" type="number" step="0.1" placeholder="Physical Closing Stock" class="border-2 border-yellow-400 rounded-xl px-3 py-2 text-sm bg-white font-bold" />
+            <button onclick="updateStockClosing()" class="gold-btn font-extrabold py-2 px-3 rounded-xl text-sm">இருப்பு அப்டேட்</button>
+          </div>
+
+          <div class="overflow-x-auto border rounded-xl">
+            <table class="w-full text-xs sm:text-sm text-left border-collapse">
+              <thead>
+                <tr class="bg-yellow-100 border-b border-yellow-300">
+                  <th class="p-2">தேதி</th>
+                  <th class="p-2">மூலப்பொருள்</th>
+                  <th class="p-2">Opening</th>
+                  <th class="p-2">Purchase</th>
+                  <th class="p-2">Master Consumed</th>
+                  <th class="p-2">Expected Stock</th>
+                  <th class="p-2">Physical Closing</th>
+                  <th class="p-2">Plus / Minus (+/-)</th>
+                </tr>
+              </thead>
+              <tbody id="stockTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENU 6: MASTER COSTING SHEET & COSTING -->
+      <section id="tab-costing" class="hidden space-y-5">
+        <div class="flex flex-wrap gap-2 bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-3">
+          <button id="subBtnMaster" onclick="switchCostingSub('master')" class="gold-btn font-extrabold px-4 py-2 rounded-xl text-sm">📋 மாஸ்டர் காஸ்டிங் ஷீட்</button>
+          <button id="subBtnCosting" onclick="switchCostingSub('reports')" class="bg-white text-amber-950 border-2 border-amber-500 font-extrabold px-4 py-2 rounded-xl text-sm">📊 காஸ்டிங் (3 Reports & Net Profit)</button>
+        </div>
+
+        <div id="costingSub-master" class="bg-white border-4 border-yellow-400 rounded-2xl p-5 shadow-md space-y-4">
+          <h2 class="text-xl font-extrabold text-amber-950">📋 மாஸ்டர் காஸ்டிங் ஷீட் (📅 <span class="active-date-text"></span>)</h2>
+
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-yellow-50 p-3.5 rounded-2xl border border-yellow-300">
+            <div>
+              <label class="block text-xs font-bold mb-1">1. உணவு (Dish)</label>
+              <select id="rcpMenuSelect" onchange="renderMasterCostingSheet()" class="w-full border-2 border-yellow-400 rounded-xl px-3 py-2 text-sm font-extrabold bg-white"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">2. முதன்மை மூலப்பொருள்</label>
+              <select id="rcpPrimaryMat" onchange="renderMasterCostingSheet()" class="w-full border-2 border-yellow-400 rounded-xl px-3 py-2 text-sm font-bold bg-white"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">3. 1 Kg-க்கு எத்தனை கிடைக்கும்?</label>
+              <div class="flex gap-1">
+                <input id="rcpYieldCountInp" type="number" step="1" placeholder="Ex: 35" class="w-full border-2 border-yellow-400 rounded-xl px-2.5 py-2 text-sm font-bold bg-white" />
+                <button onclick="saveDishYieldFromPrimary()" class="gold-btn font-extrabold px-3 py-2 rounded-xl text-xs">Set</button>
+              </div>
+            </div>
+            <div class="flex flex-col justify-center gold-banner rounded-xl px-3.5 py-2 border-2 border-amber-600">
+              <div class="text-xs font-bold text-amber-950">விற்பனை ₹ vs அடக்க விலை ₹:</div>
+              <div id="rcpLiveSummary" class="text-sm font-extrabold text-amber-950">Cost: ₹0.00 | Profit: ₹0.00</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-2.5 items-end bg-amber-50/70 p-3 rounded-xl border border-yellow-300">
+            <div>
+              <label class="block text-xs font-bold mb-1">துணைப் பொருள்</label>
+              <select id="rcpSuppStockItem" class="w-full border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-sm font-bold bg-white"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">1 யூனிட் அளவு (Kg/L)</label>
+              <input id="rcpSuppQtyInp" type="number" step="0.005" placeholder="Ex: 0.020" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 text-sm bg-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">⚡ Power (1 Unit ₹)</label>
+              <input id="rcpPowerCost" type="number" step="0.1" oninput="updateOverheadCosts()" class="w-full border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-sm bg-white font-bold" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">👷 Labour (1 Unit ₹)</label>
+              <input id="rcpLabourCost" type="number" step="0.1" oninput="updateOverheadCosts()" class="w-full border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-sm bg-white font-bold" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">🛠️ Maintenance (1 Unit ₹)</label>
+              <input id="rcpMaintCost" type="number" step="0.1" oninput="updateOverheadCosts()" class="w-full border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-sm bg-white font-bold" />
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button onclick="addSupportingMaterialToDish()" class="gold-btn font-extrabold px-4 py-2 rounded-xl text-sm shadow">+ துணைப் பொருள் சேர்</button>
+            <button onclick="createNewRawMaterialQuick()" class="gold-banner border-2 border-amber-600 font-bold px-4 py-2 rounded-xl text-xs">+ புதிய மூலப்பொருள் உருவாக்கு</button>
+          </div>
+
+          <div class="overflow-x-auto border rounded-xl">
+            <table class="w-full text-sm text-left border-collapse">
+              <thead>
+                <tr class="bg-yellow-100 border-b border-yellow-300">
+                  <th class="p-2.5">பொருள் (Primary / Supporting)</th>
+                  <th class="p-2.5">1 யூனிட் அளவு</th>
+                  <th class="p-2.5">1 Kg விலை</th>
+                  <th class="p-2.5">1 யூனிட் அடக்க விலை</th>
+                  <th class="p-2.5">நீக்கு</th>
+                </tr>
+              </thead>
+              <tbody id="rcpIngredientsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="costingSub-reports" class="hidden bg-white border-4 border-yellow-400 rounded-2xl p-5 shadow-md space-y-5">
+          <h2 class="text-xl font-extrabold text-amber-950">📊 காஸ்டிங் (📅 <span class="active-date-text"></span>)</h2>
+          <div class="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-4 space-y-2">
+            <h3 class="text-base font-extrabold text-amber-950">1. விற்பனை அடிப்படையிலான ரிப்போர்ட்</h3>
+            <div id="repSalesVsCost" class="text-sm font-bold text-gray-800"></div>
+          </div>
+          <div class="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-4 space-y-2">
+            <h3 class="text-base font-extrabold text-amber-950">2. மூலப்பொருள் கன்சம்ப்ஷன் vs பிசிகல் ஸ்டாக்</h3>
+            <div id="repStockVsPhysical" class="text-xs sm:text-sm space-y-1"></div>
+          </div>
+          <div class="gold-banner border-2 border-amber-600 rounded-2xl p-4 space-y-1">
+            <h3 class="text-base font-extrabold text-amber-950">3. ஒருங்கிணைந்த நிகர லாப & இருப்பு சுருக்க ரிப்போர்ட்</h3>
+            <div id="repCombinedSummary" class="text-base font-extrabold text-amber-950"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENU 7: EMPLOYEE MASTER & PAYROLL -->
+      <section id="tab-employees" class="hidden space-y-5">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div class="lg:col-span-5 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-3">
+            <h2 class="text-lg font-extrabold text-amber-950">👷 எம்ப்ளாயி மாஸ்டர் ப்ரொபைல் & டெசிக்னேஷன்</h2>
+
+            <div class="bg-yellow-50 p-3 rounded-xl border border-yellow-300 space-y-2">
+              <label class="block text-xs font-bold text-amber-950">டெசிக்னேஷன் சேர் / நீக்கு (Designation)</label>
+              <div class="flex gap-1.5">
+                <input id="newDesigInp" type="text" placeholder="Ex: Waiter / Master / Supplier" class="border rounded-xl px-2.5 py-1.5 text-xs flex-1 bg-white" />
+                <button onclick="addDesignation()" class="gold-btn font-extrabold px-3 py-1.5 rounded-xl text-xs">+ Add</button>
+              </div>
+              <div id="desigChips" class="flex flex-wrap gap-1.5 text-xs"></div>
+            </div>
+
+            <div class="space-y-2">
+              <input id="empNameInp" type="text" placeholder="எம்ப்ளாயி பெயர் (Employee Name)" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 text-sm font-bold" />
+              <div class="grid grid-cols-2 gap-2">
+                <select id="empDesigSel" class="border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-sm font-bold bg-yellow-50"></select>
+                <input id="empDailyWageInp" type="number" placeholder="ஒரு நாள் சம்பளம் ₹ (Daily Wage)" class="border-2 border-yellow-300 rounded-xl px-3 py-2 text-sm" />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input id="empPhoneInp" type="text" placeholder="Mobile Number" class="border rounded-xl px-3 py-2 text-sm" />
+                <input id="empAadhaarInp" type="text" placeholder="ID / Reference Number" class="border rounded-xl px-3 py-2 text-sm" />
+              </div>
+              <input id="empBankInp" type="text" placeholder="Bank A/c No & IFSC Details" class="w-full border rounded-xl px-3 py-2 text-sm" />
+              <button onclick="saveEmployeeProfile()" class="w-full gold-btn font-extrabold py-2.5 rounded-xl text-sm shadow">+ எம்ப்ளாயி சேமி / அப்டேட்</button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-3">
+            <h2 class="text-lg font-extrabold text-amber-950">💰 எம்ப்ளாயி பேரோல் & வருகை (📅 <span class="active-date-text"></span>)</h2>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-yellow-50 p-3 rounded-xl border border-yellow-300">
+              <select id="payEmpSel" class="border-2 border-yellow-400 rounded-xl px-2.5 py-2 text-sm font-bold bg-white"></select>
+              <select id="payActionType" class="border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-xs font-bold bg-white">
+                <option value="ATTENDANCE">வருகை நாட்கள் (+Days)</option>
+                <option value="ADVANCE">அட்வான்ஸ் கொடுத்தது (Advance ₹)</option>
+                <option value="MIDSALARY">இடையில் சம்பளம் (Mid-Salary ₹)</option>
+              </select>
+              <input id="payActionVal" type="number" step="0.5" placeholder="நாள் / தொகை ₹" class="border-2 border-yellow-300 rounded-xl px-3 py-2 text-sm bg-white font-bold" />
+              <button onclick="recordEmployeePayrollEntry()" class="gold-btn font-extrabold py-2 px-3 rounded-xl text-xs">பதிவு செய்</button>
+            </div>
+
+            <div class="overflow-x-auto border rounded-xl">
+              <table class="w-full text-xs text-left border-collapse">
+                <thead>
+                  <tr class="bg-yellow-100 border-b border-yellow-300">
+                    <th class="p-2">தேதி</th>
+                    <th class="p-2">பெயர் & Designation</th>
+                    <th class="p-2">விவரம் (ID / Bank)</th>
+                    <th class="p-2">நாட்கள் × Wage</th>
+                    <th class="p-2">Advance / Paid</th>
+                    <th class="p-2">இன்று தர வேண்டியது ₹</th>
+                    <th class="p-2">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="employeePayrollBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENU 8: REPORTS + REPORT FOR ADMIN -->
+      <section id="tab-reports" class="hidden space-y-5">
+        <div class="bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4 shadow-sm flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-extrabold text-amber-950">📑 ரிப்போர்ட் & Report for Admin</h2>
+            <p class="text-xs text-gray-600">From Date முதல் To Date வரை தேர்ந்தெடுத்து கீழே உள்ள எந்தத் தொகை / தேதியையும் கிளிக் செய்து முழு விவரம் பார்க்கலாம்.</p>
+          </div>
+          <div class="flex flex-wrap items-end gap-2">
+            <div>
+              <label class="block text-xs font-bold text-amber-950 mb-0.5">From Date</label>
+              <input id="rptFromDate" type="date" onchange="renderReportsSection()" class="border-2 border-yellow-400 rounded-xl px-2.5 py-1.5 text-sm font-bold bg-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-amber-950 mb-0.5">To Date</label>
+              <input id="rptToDate" type="date" onchange="renderReportsSection()" class="border-2 border-yellow-400 rounded-xl px-2.5 py-1.5 text-sm font-bold bg-white" />
+            </div>
+            <button onclick="renderReportsSection()" class="gold-btn font-extrabold px-4 py-2 rounded-xl text-sm">🔍 Filter</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <button onclick="openReportBreakup('SALES')" class="bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-2xl p-4 text-left transition shadow-sm">
+            <div class="text-xs font-extrabold text-amber-900">1. விற்பனை & கேஷ் (Sales & Cash) 🔗</div>
+            <div id="rptSalesSummary" class="text-sm font-extrabold text-emerald-800 underline mt-1">₹ 0.00</div>
+            <div class="text-[11px] text-gray-600 mt-1">கிளிக் செய்தால் முழு விவரம் வரும்</div>
+          </button>
+
+          <button onclick="openReportBreakup('PURCHASE')" class="bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-2xl p-4 text-left transition shadow-sm">
+            <div class="text-xs font-extrabold text-amber-900">2. பர்சேஸ் பில் (Purchase Bills) 🔗</div>
+            <div id="rptPurchaseSummary" class="text-sm font-extrabold text-amber-950 underline mt-1">₹ 0.00</div>
+            <div class="text-[11px] text-gray-600 mt-1">கிளிக் செய்தால் முழு விவரம் வரும்</div>
+          </button>
+
+          <button onclick="openReportBreakup('PAYROLL')" class="bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-2xl p-4 text-left transition shadow-sm">
+            <div class="text-xs font-extrabold text-amber-900">3. எம்ப்ளாயி பேரோல் பாக்கி (Payroll Due) 🔗</div>
+            <div id="rptPayrollSummary" class="text-sm font-extrabold text-amber-950 underline mt-1">₹ 0.00</div>
+            <div class="text-[11px] text-gray-600 mt-1">கிளிக் செய்தால் முழு விவரம் வரும்</div>
+          </button>
+
+          <button onclick="openReportBreakup('CANCELLED')" class="bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-2xl p-4 text-left transition shadow-sm">
+            <div class="text-xs font-extrabold text-amber-900">4. கேன்சல் ஐட்டங்கள் (Cancelled Items) 🔗</div>
+            <div id="rptCancelledSummary" class="text-sm font-extrabold text-rose-700 underline mt-1">0 Items</div>
+            <div class="text-[11px] text-gray-600 mt-1">கிளிக் செய்தால் தேதி வாரியாக வரும்</div>
+          </button>
+        </div>
+
+        <div id="rptBreakupBox" class="hidden bg-amber-50 border-2 border-amber-500 rounded-2xl p-4 shadow space-y-2">
+          <div class="flex items-center justify-between border-b border-amber-300 pb-2">
+            <h3 id="rptBreakupTitle" class="font-extrabold text-amber-950">விவரம் (Breakup)</h3>
+            <button onclick="document.getElementById('rptBreakupBox').classList.add('hidden')" class="text-xs font-extrabold text-rose-700">மூடு [×]</button>
+          </div>
+          <div id="rptBreakupBody" class="space-y-1.5 max-h-60 overflow-y-auto text-xs sm:text-sm"></div>
+        </div>
+
+        <div class="bg-white border-4 border-yellow-400 rounded-2xl p-5 shadow-md space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-yellow-300 pb-2">
+            <h3 class="text-lg font-extrabold text-amber-950">👑 Report for Admin — தேதி வாரியான வரவு & செலவு அட்டவணை (Click Date for Transactions)</h3>
+          </div>
+          <div class="overflow-x-auto border rounded-xl">
+            <table class="w-full text-xs sm:text-sm text-left border-collapse">
+              <thead>
+                <tr class="bg-yellow-100 border-b border-yellow-300">
+                  <th class="p-2.5">தேதி (Click Date)</th>
+                  <th class="p-2.5">ரொக்க வரவு (Cash In)</th>
+                  <th class="p-2.5">வங்கி / UPI வரவு</th>
+                  <th class="p-2.5">கார்டு வரவு (Card In)</th>
+                  <th class="p-2.5">ரொக்க செலவு (Cash Out)</th>
+                  <th class="p-2.5">UPI / Card செலவு</th>
+                  <th class="p-2.5">அன்றைய நிகர இருப்பு</th>
+                </tr>
+              </thead>
+              <tbody id="adminDateWiseBody"></tbody>
+              <tfoot id="adminDateWiseFoot" class="gold-banner font-extrabold border-t-2 border-amber-600"></tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-white border-2 border-yellow-400 rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-yellow-300 pb-2">
+            <h3 class="text-lg font-extrabold text-amber-950">👷 தனி எம்ப்ளாயி வரவு-செலவு ரிப்போர்ட் (Individual Employee Statement)</h3>
+            <select id="rptEmpSelect" onchange="renderIndividualEmployeeReport()" class="border-2 border-yellow-400 rounded-xl px-3 py-1.5 text-sm font-bold bg-yellow-50"></select>
+          </div>
+          <div id="rptEmpSummaryStrip" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs sm:text-sm"></div>
+          <div id="rptEmpTxList" class="space-y-1.5 max-h-48 overflow-y-auto text-xs sm:text-sm"></div>
+        </div>
+
+        <div class="bg-white border-2 border-yellow-400 rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-yellow-300 pb-2">
+            <h3 class="text-lg font-extrabold text-amber-950">🏢 பர்சேஸ் பார்ட்டி லெட்ஜர் ரிப்போர்ட் (Purchase Party Ledger & Items Bought)</h3>
+            <select id="rptPartySelect" onchange="renderIndividualPartyReport()" class="border-2 border-yellow-400 rounded-xl px-3 py-1.5 text-sm font-bold bg-yellow-50"></select>
+          </div>
+          <div id="rptPartySummaryStrip" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs sm:text-sm"></div>
+          <div class="overflow-x-auto border rounded-xl">
+            <table class="w-full text-xs sm:text-sm text-left border-collapse">
+              <thead>
+                <tr class="bg-yellow-100 border-b border-yellow-300">
+                  <th class="p-2">தேதி</th>
+                  <th class="p-2">வாங்கிய பொருட்கள் (Items Purchased)</th>
+                  <th class="p-2">பில் தொகை ₹</th>
+                  <th class="p-2">கொடுத்த பணம் ₹</th>
+                  <th class="p-2">நிலை (Status)</th>
+                </tr>
+              </thead>
+              <tbody id="rptPartyBillsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENU 9: USER MENU ACCESS & STAFF ASSIGNMENT -->
+      <section id="tab-permissions" class="hidden space-y-4">
+        <div class="bg-white border-2 border-yellow-400 rounded-2xl p-5 shadow-sm space-y-4">
+          <div>
+            <h2 class="text-xl font-extrabold text-amber-950">🔐 யூசர் மெனு அணுகல் & ஸ்டாஃப் அசைன்மெண்ட் (User Menu & Staff Assignment)</h2>
+            <p class="text-xs text-gray-600">Owner / Admin, Admin 2, Manager, Cashier, Staff 1, Staff 2 ஆகியோருக்கு ஸ்டாஃப் பெயரை அசைன் செய்து, எந்தெந்த மெனுக்களைப் பார்க்கலாம் என்பதை டிக் (☑) செய்யவும்.</p>
+          </div>
+
+          <div class="overflow-x-auto border rounded-xl">
+            <table class="w-full text-xs sm:text-sm border-collapse text-left">
+              <thead>
+                <tr class="bg-yellow-100 border-b border-yellow-300">
+                  <th class="p-2.5">யூசர் ரோல் (Internal Role)</th>
+                  <th class="p-2.5">அசைன் செய்யப்படும் ஸ்டாஃப் (Assigned Staff Name)</th>
+                  <th class="p-2.5">பாஸ்வேர்ட் (Password)</th>
+                </tr>
+              </thead>
+              <tbody id="userSlotAssignBody"></tbody>
+            </table>
+          </div>
+
+          <div id="userPermissionMatrix" class="overflow-x-auto"></div>
+        </div>
+      </section>
+
+      <!-- MENU 10: COMPANY PROFILE -->
+      <section id="tab-profile" class="hidden space-y-4">
+        <div class="bg-white border-4 border-yellow-400 rounded-2xl p-6 shadow-md max-w-3xl mx-auto space-y-4">
+          <div class="border-b-2 border-yellow-300 pb-3">
+            <h2 class="text-2xl font-extrabold text-amber-950">🏢 கம்பெனி ப்ரொபைல் (Company Profile)</h2>
+            <p class="text-xs text-gray-600">இங்கு சேமிக்கும் <strong>Company Name</strong> மற்றும் <strong>Address</strong> மட்டுமே மெயின் ஹெட்டிங்கில் தெரியும்; மற்ற GST, Proprietor, Phone, Email விவரங்கள் இங்கு பாதுகாப்பாக இருக்கும்.</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-bold text-amber-950 mb-1">Company Name (வெளியில் தெரியும்)</label>
+              <input id="cpBrand" type="text" class="w-full border-2 border-yellow-400 rounded-xl px-3 py-2 font-bold bg-yellow-50" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-amber-950 mb-1">Address (வெளியில் தெரியும்)</label>
+              <input id="cpAddr" type="text" class="w-full border-2 border-yellow-400 rounded-xl px-3 py-2 font-bold bg-yellow-50" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Legal Name</label>
+              <input id="cpLegal" type="text" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 bg-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Proprietor Name</label>
+              <input id="cpProp" type="text" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 bg-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">GST Number</label>
+              <input id="cpGst" type="text" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 bg-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Phone Number</label>
+              <input id="cpPhone" type="text" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 bg-white" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-bold text-gray-700 mb-1">Email Address</label>
+              <input id="cpEmail" type="email" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 bg-white" />
+            </div>
+          </div>
+
+          <button onclick="saveCompanyProfile()" class="w-full gold-btn font-extrabold py-3 rounded-xl text-base shadow">💾 Company Profile சேமி (Save)</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Thermal Print Area (58mm Aligned - No Cut Off) -->
+  <div id="printArea"></div>
+
+  <script>
+    const USER_SLOTS = [
+      { key: 'owner', internalLabel: 'Owner / Admin', defaultStaff: 'VENKADESVARAN T', defaultPass: 'admin123' },
+      { key: 'admin2', internalLabel: 'Admin 2', defaultStaff: 'Admin 2 Staff', defaultPass: 'adm2123' },
+      { key: 'manager', internalLabel: 'Manager', defaultStaff: 'Manager Staff', defaultPass: 'mgr123' },
+      { key: 'cashier', internalLabel: 'Cashier', defaultStaff: 'Cashier Staff', defaultPass: 'cash123' },
+      { key: 'staff1', internalLabel: 'Staff 1', defaultStaff: 'ரமேஷ்', defaultPass: 'stf1123' },
+      { key: 'staff2', internalLabel: 'Staff 2', defaultStaff: 'சுரேஷ்', defaultPass: 'stf2123' },
+      { key: 'kitchen', internalLabel: 'Kitchen TV', defaultStaff: 'Kitchen Display', defaultPass: 'kit123' }
+    ];
+
+    const ALL_MENUS = [
+      { id: 'pos', ta: 'மெனு ஆர்டர் பில் (POS)', en: 'Menu Order Bill (POS)' },
+      { id: 'kitchen', ta: 'கிச்சன் (Kitchen TV)', en: 'Kitchen TV Display' },
+      { id: 'purchase', ta: 'பர்சேஸ் & பார்ட்டி', en: 'Purchase & Party Master' },
+      { id: 'ledger', ta: 'பேமெண்ட் & ரசீது', en: 'Payment & Receipt' },
+      { id: 'stock', ta: 'ஸ்டாக் & இன்வெண்டரி', en: 'Stock & Inventory' },
+      { id: 'costing', ta: 'மாஸ்டர் காஸ்டிங் & காஸ்டிங்', en: 'Master Costing & Costing' },
+      { id: 'employees', ta: 'எம்ப்ளாயி & பேரோல்', en: 'Employee & Payroll' },
+      { id: 'reports', ta: 'ரிப்போர்ட் & Admin Report', en: 'Reports & Admin Report' },
+      { id: 'permissions', ta: 'யூசர் மெனு அணுகல்', en: 'User Menu Access' },
+      { id: 'profile', ta: '🏢 Company Profile', en: '🏢 Company Profile', rightSide: true }
+    ];
+
+    const WORD_DICT = {
+      'pongal': 'பொங்கல்', 'paniyaram': 'பணியாரம்', 'idli': 'இட்லி', 'dosa': 'தோசை',
+      'masala': 'மசாலா', 'poori': 'பூரி', 'meals': 'மீல்ஸ்', 'veg': 'வெஜ்', 'vada': 'வடை',
+      'arisi': 'அரிசி', 'rice': 'அரிசி', 'ulundu': 'உளுந்து', 'paruppu': 'பருப்பு', 'oil': 'எண்ணெய்'
+    };
+
+    function tanglishToTamil(input) {
+      if (!input) return '';
+      const raw = input.trim().toLowerCase();
+      if (!raw) return '';
+      if (WORD_DICT[raw]) return WORD_DICT[raw];
+      return raw.split(/\s+/).map(word => {
+        if (WORD_DICT[word]) return WORD_DICT[word];
+        let s = word.replace(/ng/g, 'ங்').replace(/nj/g, 'ஞ்').replace(/nd/g, 'ந்த்').replace(/mp/g, 'ம்ப்').replace(/th/g, 'த்').replace(/sh/g, 'ஷ்').replace(/ch/g, 'ச்');
+        const pairs = [['k','க்'],['g','க்'],['c','ச்'],['j','ஜ்'],['t','ட்'],['d','ட்'],['n','ன்'],['p','ப்'],['b','ப்'],['m','ம்'],['y','ய்'],['r','ர்'],['l','ல்'],['v','வ்'],['z','ழ்'],['s','ஸ்'],['h','ஹ்']];
+        const uyirmei = [['aa','ா'],['ai','ை'],['au','ௌ'],['a',''],['i','ி'],['ee','ீ'],['u','ு'],['oo','ூ'],['e','ெ'],['o','ொ']];
+        let out = '', idx = 0;
+        while (idx < s.length) {
+          if (['த்','ஷ்','ச்','ங்','ஞ்','ந்த்','ம்ப்'].includes(s[idx])) { out += s[idx]; idx++; continue; }
+          const cons = pairs.find(([lat]) => s.startsWith(lat, idx));
+          if (cons) {
+            const [lat, mei] = cons;
+            const base = mei.slice(0, -1);
+            const rest = s.slice(idx + lat.length);
+            const vow = uyirmei.find(([v]) => v && rest.startsWith(v));
+            if (vow) { out += base + vow[1]; idx += lat.length + vow[0].length; }
+            else if (rest.startsWith('a')) { out += base; idx += lat.length + 1; }
+            else { out += mei; idx += lat.length; }
+          } else {
+            const sv = [['aa','ஆ'],['ai','ஐ'],['a','அ'],['i','இ'],['ee','ஈ'],['u','உ'],['oo','ஊ'],['e','எ'],['o','ஒ']].find(([v]) => s.startsWith(v, idx));
+            if (sv) { out += sv[1]; idx += sv[0].length; }
+            else { out += s[idx]; idx++; }
+          }
+        }
+        return out;
+      }).join(' ');
+    }
+
+    function foodCardSvg(title) {
+      const safeTitle = String(title || '').replace(/[<>&"]/g, '');
+      const svg =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="260" height="140" viewBox="0 0 260 140">' +
+        '<defs><linearGradient id="goldg" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0%" stop-color="#fef9c3"/><stop offset="50%" stop-color="#fde047"/><stop offset="100%" stop-color="#eab308"/>' +
+        '</linearGradient></defs>' +
+        '<rect width="260" height="140" rx="14" fill="url(#goldg)"/>' +
+        '<rect x="14" y="14" width="232" height="112" rx="10" fill="#ffffff" stroke="#d97706" stroke-width="2"/>' +
+        '<text x="130" y="76" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#3b1d00">' +
+        safeTitle +
+        '</text></svg>';
+      return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+    }
+
+    function todayIso() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function formatDisplayDate(isoStr) {
+      if (!isoStr) return new Date().toLocaleDateString('en-IN');
+      const [y, m, d] = isoStr.split('-');
+      return d && m && y ? `${d}/${m}/${y}` : isoStr;
+    }
+
+    function parseAnyDateToIso(str) {
+      if (!str) return todayIso();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+      const parts = str.split('/');
+      if (parts.length === 3) {
+        const [d, m, y] = parts;
+        return `${y.padStart(4, '20')}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+      }
+      return todayIso();
+    }
+
+    const DEFAULT_DB = {
+      role: null,
+      menuLang: 'ta',
+      costingSub: 'master',
+      activeDate: todayIso(),
+      billCounter: 1001,
+      settledBills: [],
+      companyProfile: {
+        brand: 'VGP WORLD RESTAURANT',
+        addr: 'வையம்பட்டி (Vaiyampatti)',
+        legal: 'VGP ENTERPRISES',
+        prop: 'VENKADESVARAN T',
+        gst: '33ADXPT3968Q2Z5',
+        phone: '7904050000',
+        email: 'TVENKADES@GMAIL.COM'
+      },
+      userAssignments: {
+        owner: { staffName: 'VENKADESVARAN T', pass: 'admin123' },
+        admin2: { staffName: 'Admin 2', pass: 'adm2123' },
+        manager: { staffName: 'Manager', pass: 'mgr123' },
+        cashier: { staffName: 'Cashier', pass: 'cash123' },
+        staff1: { staffName: 'ரமேஷ்', pass: 'stf1123' },
+        staff2: { staffName: 'சுரேஷ்', pass: 'stf2123' },
+        kitchen: { staffName: 'Kitchen TV', pass: 'kit123' }
+      },
+      permissions: {
+        owner: ['pos', 'kitchen', 'purchase', 'ledger', 'stock', 'costing', 'employees', 'reports', 'permissions', 'profile'],
+        admin2: ['pos', 'kitchen', 'purchase', 'ledger', 'stock', 'costing', 'employees', 'reports', 'permissions', 'profile'],
+        manager: ['pos', 'kitchen', 'purchase', 'ledger', 'stock', 'costing', 'employees', 'reports'],
+        cashier: ['pos', 'purchase', 'ledger', 'stock', 'reports'],
+        staff1: ['pos'],
+        staff2: ['pos'],
+        kitchen: ['kitchen']
+      },
+      tables: Array.from({ length: 16 }, (_, i) => `T-${String(i + 1).padStart(2, '0')}`),
+      activeTable: 'T-01',
+      designations: ['Supplier / Waiter', 'Master / Cook', 'Cashier', 'Manager', 'Helper'],
+      employees: [
+        { id: 1, name: 'ரமேஷ்', desig: 'Supplier / Waiter', phone: '9842100011', aadhaar: '', bank: '', dailyWage: 500, daysWorked: 1, advance: 0, midSalary: 0 },
+        { id: 2, name: 'சுரேஷ்', desig: 'Supplier / Waiter', phone: '9842100012', aadhaar: '', bank: '', dailyWage: 500, daysWorked: 1, advance: 0, midSalary: 0 },
+        { id: 3, name: 'கார்த்திக்', desig: 'Master / Cook', phone: '9842100013', aadhaar: '', bank: '', dailyWage: 800, daysWorked: 1, advance: 0, midSalary: 0 }
+      ],
+      menu: [
+        { id: 1, eng: 'Pongal', tam: 'பொங்கல்', price: 50, img: foodCardSvg('பொங்கல்') },
+        { id: 2, eng: 'Paniyaram', tam: 'பணியாரம்', price: 55, img: foodCardSvg('பணியாரம்') },
+        { id: 3, eng: 'Idli', tam: 'இட்லி', price: 30, img: foodCardSvg('இட்லி') },
+        { id: 4, eng: 'Masala Dosa', tam: 'மசாலா தோசை', price: 75, img: foodCardSvg('மசாலா தோசை') },
+        { id: 5, eng: 'Vada', tam: 'வடை', price: 25, img: foodCardSvg('வடை') },
+        { id: 6, eng: 'Veg Meals', tam: 'வெஜ் மீல்ஸ்', price: 120, img: foodCardSvg('வெஜ் மீல்ஸ்') }
+      ],
+      orders: {},
+      cancelledItems: [],
+      soldItems: {},
+      cashTx: [],
+      parties: [
+        { name: 'ஸ்ரீ முருகன் ஸ்டோர்ஸ்', addr: 'வையம்பட்டி மெயின் ரோடு', phone: '9842100001', gst: '', acc: '' },
+        { name: 'வையம்பட்டி மார்க்கெட்', addr: 'பஸ் ஸ்டாண்ட் அருகில், வையம்பட்டி', phone: '9842100002', gst: '', acc: '' }
+      ],
+      draftPurItems: [],
+      savedPurBills: [],
+      ledgerCategories: ['Supplier Payment', 'Employee Salary', 'Employee Advance', 'Expense Ledger', 'Receipt In'],
+      ledgerEntries: [],
+      stock: {
+        'அரிசி': { unitRate: 56, opening: 50, purchase: 0, closing: 50 },
+        'உளுந்து': { unitRate: 120, opening: 20, purchase: 0, closing: 20 },
+        'எண்ணெய்': { unitRate: 140, opening: 25, purchase: 0, closing: 25 }
+      },
+      dishOverheads: {
+        2: { power: 2.0, labour: 5.0, maint: 1.5 },
+        4: { power: 2.5, labour: 6.0, maint: 1.5 }
+      },
+      recipes: {
+        2: [{ stockKey: 'அரிசி', qty: 1 / 35, yieldPerKg: 35, isPrimary: true }],
+        3: [{ stockKey: 'அரிசி', qty: 1 / 40, yieldPerKg: 40, isPrimary: true }],
+        1: [{ stockKey: 'அரிசி', qty: 1 / 12, yieldPerKg: 12, isPrimary: true }]
+      },
+      currentBillPhotoData: ''
+    };
+
+    let db = JSON.parse(localStorage.getItem('VGP_WORLD_V12')) || DEFAULT_DB;
+    if (!db.activeDate) db.activeDate = todayIso();
+    if (!db.companyProfile) db.companyProfile = DEFAULT_DB.companyProfile;
+    if (!db.userAssignments) db.userAssignments = DEFAULT_DB.userAssignments;
+    if (!db.settledBills) db.settledBills = [];
+    if (!db.billCounter) db.billCounter = 1001;
+
+    let currentZoom = 1;
+    const tvChannel = new BroadcastChannel('vgp_world_v12_channel');
+    tvChannel.onmessage = () => {
+      db = JSON.parse(localStorage.getItem('VGP_WORLD_V12')) || db;
+      renderAll();
+    };
+
+    function persist(notifyTv = false) {
+      localStorage.setItem('VGP_WORLD_V12', JSON.stringify(db));
+      if (notifyTv) tvChannel.postMessage('update');
+      renderAll();
+      vgpPushCloud();
+    }
+
+    function changeGlobalDate(val) {
+      db.activeDate = val || todayIso();
+      persist();
+    }
+
+    function getActiveDateFormatted() {
+      return formatDisplayDate(db.activeDate);
+    }
+
+    function setMenuLanguage(lang) {
+      db.menuLang = lang;
+      persist();
+    }
+
+    function getMenuLabel(item) {
+      return db.menuLang === 'en' ? (item.eng || item.tam) : (item.tam || item.eng);
+    }
+
+    function getDishUnitCost(menuId) {
+      const m = db.menu.find(x => x.id === menuId);
+      const rList = db.recipes[menuId] || [];
+      const rawCost = rList.reduce((s, ing) => s + (ing.qty * (db.stock[ing.stockKey]?.unitRate || 0)), 0);
+      const ov = db.dishOverheads[menuId] || { power: 0, labour: 0, maint: 0 };
+      const totalUnitCost = rawCost + (ov.power || 0) + (ov.labour || 0) + (ov.maint || 0);
+      return { rawCost, totalUnitCost, sellPrice: m ? m.price : 0, ov };
+    }
+
+    function getLoginUsersList() {
+      return USER_SLOTS.map(slot => {
+        const assigned = db && db.userAssignments && db.userAssignments[slot.key];
+        return {
+          key: slot.key,
+          name: (assigned && assigned.staffName) ? assigned.staffName : slot.defaultStaff,
+          pass: (assigned && assigned.pass) ? assigned.pass : slot.defaultPass
+        };
+      });
+    }
+
+    function renderLoginDropdown() {
+      const sel = document.getElementById('loginUserSlot');
+      if (!sel) return;
+      const cur = sel.value;
+      const list = getLoginUsersList();
+      sel.innerHTML = list.map(u => `<option value="${u.key}">${u.name}</option>`).join('');
+      if (cur && list.some(u => u.key === cur)) {
+        sel.value = cur;
+      } else if (list.length) {
+        sel.value = list[0].key;
+      }
+      document.getElementById('loginBrandTitle').textContent = db.companyProfile.brand || 'VGP WORLD RESTAURANT';
+      document.getElementById('loginBranchAddr').textContent = db.companyProfile.addr || 'வையம்பட்டி (Vaiyampatti)';
+    }
+
+    function doLogin() {
+      const slotKey = document.getElementById('loginUserSlot').value;
+      const pass = document.getElementById('loginPass').value;
+      const found = getLoginUsersList().find(u => u.key === slotKey);
+      const expectedPass = found ? found.pass : 'admin123';
+      if (expectedPass !== pass) return alert('தவறான பாஸ்வேர்ட்!');
+      db.role = slotKey;
+      persist();
+      openSession(slotKey);
+    }
+
+    function logout() {
+      db.role = null;
+      persist();
+      document.getElementById('appScreen').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+      renderLoginDropdown();
+    }
+
+    function openSession(slotKey) {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('appScreen').classList.remove('hidden');
+
+      const staffDisplayName = db.userAssignments[slotKey]?.staffName || slotKey;
+      document.getElementById('roleBadge').textContent = `👤 ${staffDisplayName}`;
+
+      const canEditPrice = ['owner', 'admin2', 'manager'].includes(slotKey);
+      document.getElementById('priceEditNotice').textContent = canEditPrice
+        ? '✅ விலை எடிட் அனுமதி உள்ளது'
+        : '🔒 விலை எடிட் முடக்கப்பட்டுள்ளது';
+
+      const allowedIds = db.permissions[slotKey] || ['pos'];
+      const allowedMenus = ALL_MENUS.filter(m => allowedIds.includes(m.id));
+      switchTab(allowedMenus[0].id);
+    }
+
+    function switchTab(id) {
+      const allowed = db.permissions[db.role] || ['pos'];
+      if (!allowed.includes(id)) return alert('இந்த மெனுவிற்கு உங்களுக்கு அனுமதி இல்லை.');
+      ['pos', 'kitchen', 'purchase', 'ledger', 'stock', 'costing', 'employees', 'reports', 'permissions', 'profile'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== id);
+      });
+      renderAll();
+    }
+
+    function saveCompanyProfile() {
+      db.companyProfile.brand = document.getElementById('cpBrand').value.trim() || 'VGP WORLD RESTAURANT';
+      db.companyProfile.addr = document.getElementById('cpAddr').value.trim() || 'வையம்பட்டி (Vaiyampatti)';
+      db.companyProfile.legal = document.getElementById('cpLegal').value.trim();
+      db.companyProfile.prop = document.getElementById('cpProp').value.trim();
+      db.companyProfile.gst = document.getElementById('cpGst').value.trim();
+      db.companyProfile.phone = document.getElementById('cpPhone').value.trim();
+      db.companyProfile.email = document.getElementById('cpEmail').value.trim();
+      persist();
+      alert('Company Profile சேமிக்கப்பட்டது!');
+    }
+
+    function updateUserSlotAssignment(slotKey, field, val) {
+      if (!db.userAssignments[slotKey]) db.userAssignments[slotKey] = { staffName: '', pass: '' };
+      db.userAssignments[slotKey][field] = val.trim();
+      persist();
+    }
+
+    function switchCostingSub(sub) {
+      db.costingSub = sub;
+      localStorage.setItem('VGP_WORLD_V12', JSON.stringify(db));
+      renderCostingSection();
+    }
+
+    function quickTanglishToTamil() {
+      document.getElementById('quickTam').value = tanglishToTamil(document.getElementById('quickEng').value);
+    }
+
+    function autoPurItemTamil() {
+      document.getElementById('pItemTam').value = tanglishToTamil(document.getElementById('pItemEng').value);
+    }
+
+    function quickAddMenuItem() {
+      const eng = document.getElementById('quickEng').value.trim();
+      const tam = document.getElementById('quickTam').value.trim() || tanglishToTamil(eng);
+      const price = parseFloat(document.getElementById('quickPrice').value);
+      const file = document.getElementById('quickImg').files[0];
+      if (!tam || isNaN(price) || price <= 0) return alert('தமிழ் பெயர் மற்றும் விலையை உள்ளிடவும்.');
+      const done = (imgSrc) => {
+        db.menu.push({ id: Date.now(), eng: eng || tam, tam, price, img: imgSrc || foodCardSvg(tam) });
+        document.getElementById('quickEng').value = '';
+        document.getElementById('quickTam').value = '';
+        document.getElementById('quickPrice').value = '';
+        document.getElementById('quickImg').value = '';
+        persist();
+      };
+      if (file) {
+        const r = new FileReader();
+        r.onload = () => done(r.result);
+        r.readAsDataURL(file);
+      } else done('');
+    }
+
+    function editMenuPrice(menuId) {
+      if (!['owner', 'admin2', 'manager'].includes(db.role)) return alert('விலை மாற்றும் வசதி Admin / Manager-க்கு மட்டுமே உள்ளது.');
+      const item = db.menu.find(m => m.id === menuId);
+      if (!item) return;
+      const val = prompt(`${getMenuLabel(item)} — புதிய விலை (₹):`, item.price);
+      const num = parseFloat(val);
+      if (!isNaN(num) && num > 0) {
+        item.price = num;
+        persist();
+      }
+    }
+
+    function quickTableAction(act) {
+      if (act === 'add') {
+        const name = document.getElementById('quickAddTable').value.trim();
+        if (name && !db.tables.includes(name)) {
+          db.tables.push(name);
+          document.getElementById('quickAddTable').value = '';
+          persist();
+        }
+      } else if (act === 'del') {
+        if (db.tables.length <= 1) return;
+        const removed = db.tables.pop();
+        delete db.orders[removed];
+        if (db.activeTable === removed) db.activeTable = db.tables[0];
+        persist(true);
+      }
+    }
+
+    function addDesignation() {
+      const val = document.getElementById('newDesigInp').value.trim();
+      if (!val || db.designations.includes(val)) return;
+      db.designations.push(val);
+      document.getElementById('newDesigInp').value = '';
+      persist();
+    }
+
+    function deleteDesignation(idx) {
+      if (db.designations.length <= 1) return;
+      db.designations.splice(idx, 1);
+      persist();
+    }
+
+    function saveEmployeeProfile() {
+      const name = document.getElementById('empNameInp').value.trim();
+      const desig = document.getElementById('empDesigSel').value;
+      const dailyWage = parseFloat(document.getElementById('empDailyWageInp').value) || 0;
+      const phone = document.getElementById('empPhoneInp').value.trim();
+      const aadhaar = document.getElementById('empAadhaarInp').value.trim();
+      const bank = document.getElementById('empBankInp').value.trim();
+      if (!name) return alert('எம்ப்ளாயி பெயரை உள்ளிடவும்.');
+
+      const existing = db.employees.find(e => e.name.toLowerCase() === name.toLowerCase());
+      if (existing) {
+        existing.desig = desig || existing.desig;
+        if (dailyWage > 0) existing.dailyWage = dailyWage;
+        if (phone) existing.phone = phone;
+        if (aadhaar) existing.aadhaar = aadhaar;
+        if (bank) existing.bank = bank;
+      } else {
+        db.employees.push({
+          id: Date.now(),
+          name,
+          desig: desig || 'Supplier / Waiter',
+          phone,
+          aadhaar,
+          bank,
+          dailyWage,
+          daysWorked: 1,
+          advance: 0,
+          midSalary: 0
+        });
+      }
+
+      document.getElementById('empNameInp').value = '';
+      document.getElementById('empDailyWageInp').value = '';
+      document.getElementById('empPhoneInp').value = '';
+      document.getElementById('empAadhaarInp').value = '';
+      document.getElementById('empBankInp').value = '';
+      persist();
+    }
+
+    function deleteEmployee(id) {
+      db.employees = db.employees.filter(e => e.id !== id);
+      persist();
+    }
+
+    function quickAddEmployeeFromPos() {
+      const name = prompt('புதிய எம்ப்ளாயி / வெயிட்டர் பெயர்:');
+      if (!name || !name.trim()) return;
+      const desig = prompt('Designation (Supplier / Waiter / Master):', db.designations[0] || 'Supplier / Waiter');
+      const wage = parseFloat(prompt('ஒரு நாள் சம்பளம் (₹):', '500')) || 500;
+      db.employees.push({
+        id: Date.now(),
+        name: name.trim(),
+        desig: (desig || 'Supplier / Waiter').trim(),
+        phone: '',
+        aadhaar: '',
+        bank: '',
+        dailyWage: wage,
+        daysWorked: 1,
+        advance: 0,
+        midSalary: 0
+      });
+      persist();
+    }
+
+    function recordEmployeePayrollEntry() {
+      const empId = parseInt(document.getElementById('payEmpSel').value, 10);
+      const action = document.getElementById('payActionType').value;
+      const val = parseFloat(document.getElementById('payActionVal').value);
+      const emp = db.employees.find(e => e.id === empId);
+      if (!emp || isNaN(val) || val <= 0) return alert('எம்ப்ளாயி மற்றும் சரியான மதிப்பை உள்ளிடவும்.');
+
+      const dt = getActiveDateFormatted();
+      if (action === 'ATTENDANCE') {
+        emp.daysWorked = (emp.daysWorked || 0) + val;
+      } else if (action === 'ADVANCE') {
+        emp.advance = (emp.advance || 0) + val;
+        db.cashTx.push({ date: dt, time: `${dt} ${new Date().toLocaleTimeString()}`, dir: 'OUT', mode: 'Cash', label: `Advance: ${emp.name}`, amt: val });
+        db.ledgerEntries.push({ id: Date.now(), date: dt, cat: 'Employee Advance', party: emp.name, mode: 'Cash', dir: 'OUT', amt: val, note: `Advance on ${dt}` });
+      } else if (action === 'MIDSALARY') {
+        emp.midSalary = (emp.midSalary || 0) + val;
+        db.cashTx.push({ date: dt, time: `${dt} ${new Date().toLocaleTimeString()}`, dir: 'OUT', mode: 'Cash', label: `Mid-Salary: ${emp.name}`, amt: val });
+        db.ledgerEntries.push({ id: Date.now(), date: dt, cat: 'Employee Salary', party: emp.name, mode: 'Cash', dir: 'OUT', amt: val, note: `Mid-Salary on ${dt}` });
+      }
+      document.getElementById('payActionVal').value = '';
+      persist();
+    }
+
+    function selectTable(t) {
+      db.activeTable = t;
+      persist();
+    }
+
+    function addToOrder(menuId) {
+      const m = db.menu.find(x => x.id === menuId);
+      if (!m) return;
+      const t = db.activeTable;
+      const staff = document.getElementById('activeStaff').value || 'Staff';
+      if (!db.orders[t]) {
+        db.orders[t] = { staff, status: 'ordering', items: [] };
+      } else if (db.orders[t].status !== 'kot_sent' && db.orders[t].status !== 'pay_ready') {
+        db.orders[t].status = 'ordering';
+      }
+      db.orders[t].staff = staff;
+      const found = db.orders[t].items.find(i => i.id === m.id && !i.cancelled);
+      if (found) found.qty += 1;
+      else db.orders[t].items.push({ ...m, qty: 1, cancelled: false });
+      persist(true);
+    }
+
+    function updateOrderQty(menuId, delta) {
+      const ord = db.orders[db.activeTable];
+      if (!ord) return;
+      const idx = ord.items.findIndex(i => i.id === menuId && !i.cancelled);
+      if (idx === -1) return;
+      ord.items[idx].qty += delta;
+      if (ord.items[idx].qty <= 0) {
+        cancelOrderItem(menuId);
+      } else {
+        persist(true);
+      }
+    }
+
+    function cancelOrderItem(menuId) {
+      const ord = db.orders[db.activeTable];
+      if (!ord) return;
+      const idx = ord.items.findIndex(i => i.id === menuId && !i.cancelled);
+      if (idx === -1) return;
+      const target = ord.items[idx];
+      db.cancelledItems.push({
+        date: getActiveDateFormatted(),
+        time: new Date().toLocaleTimeString(),
+        table: db.activeTable,
+        staff: ord.staff,
+        tam: target.tam,
+        eng: target.eng,
+        qty: target.qty,
+        price: target.price
+      });
+      target.cancelled = true;
+      persist(true);
+    }
+
+    function markReadyToPay() {
+      const ord = db.orders[db.activeTable];
+      const activeList = (ord?.items || []).filter(i => !i.cancelled);
+      if (!activeList.length) return alert('டேபிளில் செயலில் உள்ள ஆர்டர் இல்லை.');
+      ord.status = 'pay_ready';
+      persist(true);
+    }
+
+    function computeBillAmounts(ord) {
+      const activeList = (ord?.items || []).filter(i => !i.cancelled);
+      const subTotal = activeList.reduce((s, i) => s + i.price * i.qty, 0);
+      const disc = parseFloat(document.getElementById('billDiscountInp')?.value) || 0;
+      const ro = parseFloat(document.getElementById('billRoundOffInp')?.value) || 0;
+      const netTotal = Math.max(0, subTotal - disc + ro);
+      return { activeList, subTotal, disc, ro, netTotal };
+    }
+
+    function build58mmBillHtml(billData, isDuplicate = false) {
+      return `
+        <div style="width:100%;text-align:center;border-bottom:1px dashed #000;padding-bottom:3px;">
+          <div style="font-weight:bold;font-size:12px;">${db.companyProfile.brand}</div>
+          <div style="font-size:10px;">${db.companyProfile.addr}</div>
+          ${isDuplicate ? '<div style="font-weight:bold;font-size:10px;">*** DUPLICATE COPY ***</div>' : ''}
+          <div style="font-size:10px;margin-top:2px;">Bill #${billData.billNo} | ${billData.date}</div>
+          <div style="font-size:10px;">Table: <strong>${billData.table}</strong> | ${billData.mode}</div>
+        </div>
+        <table style="width:100%;margin-top:4px;font-size:10.5px;">
+          ${billData.items.map(i => `
+            <tr>
+              <td style="width:66%;padding:1.5px 2px 1.5px 0;">${getMenuLabel(i)} (${i.qty})</td>
+              <td style="width:34%;text-align:right;padding:1.5px 0;">₹${(i.price * i.qty).toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </table>
+        <div style="border-top:1px dashed #000;margin-top:4px;padding-top:3px;font-size:10.5px;">
+          <table style="width:100%;">
+            <tr><td style="width:60%;">Sub Total</td><td style="width:40%;text-align:right;">₹${billData.subTotal.toFixed(2)}</td></tr>
+            ${billData.disc ? `<tr><td>Discount</td><td style="text-align:right;">-₹${billData.disc.toFixed(2)}</td></tr>` : ''}
+            ${billData.ro ? `<tr><td>Round Off</td><td style="text-align:right;">₹${billData.ro.toFixed(2)}</td></tr>` : ''}
+            <tr style="font-weight:bold;font-size:12px;"><td>NET TOTAL</td><td style="text-align:right;">₹${billData.netTotal.toFixed(2)}</td></tr>
+          </table>
+        </div>
+        <div style="text-align:center;font-size:10px;margin-top:4px;border-top:1px dashed #000;padding-top:3px;">நன்றி! மீண்டும் வருக</div>
+      `;
+    }
+
+    function printKOT() {
+      const t = db.activeTable;
+      const ord = db.orders[t];
+      const { activeList } = computeBillAmounts(ord);
+      if (!activeList.length) return alert('டேபிளில் ஆர்டர் இல்லை.');
+      ord.status = 'kot_sent';
+      persist(true);
+      document.getElementById('printArea').innerHTML = `
+        <div style="width:100%;text-align:center;border-bottom:1px dashed #000;padding-bottom:3px;">
+          <div style="font-weight:bold;font-size:12px;">${db.companyProfile.brand}</div>
+          <div style="font-weight:bold;font-size:11px;">KOT - TABLE: ${t}</div>
+          <div style="font-size:10px;">${getActiveDateFormatted()} ${new Date().toLocaleTimeString()} | ${ord.staff}</div>
+        </div>
+        <table style="width:100%;margin-top:4px;font-size:11px;">
+          ${activeList.map(i => `<tr><td style="width:75%;font-weight:bold;">${getMenuLabel(i)}</td><td style="width:25%;text-align:right;font-weight:bold;">x ${i.qty}</td></tr>`).join('')}
+        </table>
+      `;
+      window.print();
+    }
+
+    function settleBill(mode) {
+      const t = db.activeTable;
+      const ord = db.orders[t];
+      const { activeList, subTotal, disc, ro, netTotal } = computeBillAmounts(ord);
+      if (!activeList.length) return alert('பில் போட ஆர்டர் இல்லை.');
+
+      activeList.forEach(i => {
+        db.soldItems[i.id] = (db.soldItems[i.id] || 0) + i.qty;
+      });
+
+      const dt = getActiveDateFormatted();
+      const billNo = db.billCounter++;
+      const billRecord = {
+        billNo,
+        date: dt,
+        time: new Date().toLocaleTimeString(),
+        table: t,
+        staff: ord.staff,
+        mode,
+        items: activeList.map(i => ({ id: i.id, tam: i.tam, eng: i.eng, price: i.price, qty: i.qty })),
+        subTotal,
+        disc,
+        ro,
+        netTotal
+      };
+      db.settledBills.push(billRecord);
+
+      const summary = activeList.map(i => `${getMenuLabel(i)} x${i.qty}`).join(', ');
+      document.getElementById('printArea').innerHTML = build58mmBillHtml(billRecord, false);
+
+      db.cashTx.push({ date: dt, time: `${dt} ${billRecord.time}`, dir: 'IN', mode, label: `Bill #${billNo} ${t} (${summary})`, amt: netTotal });
+      delete db.orders[t];
+      if (document.getElementById('billDiscountInp')) document.getElementById('billDiscountInp').value = 0;
+      if (document.getElementById('billRoundOffInp')) document.getElementById('billRoundOffInp').value = 0;
+      persist(true);
+      window.print();
+    }
+
+    function reprintSettledBill(billNo) {
+      const billRecord = db.settledBills.find(b => b.billNo === billNo);
+      if (!billRecord) return alert('பில் விவரம் கிடைக்கவில்லை.');
+      document.getElementById('printArea').innerHTML = build58mmBillHtml(billRecord, true);
+      window.print();
+    }
+
+    function openCashDrill(filter) {
+      const panel = document.getElementById('cashDrillPanel');
+      const title = document.getElementById('cashDrillTitle');
+      const list = document.getElementById('cashDrillList');
+      const rows = db.cashTx.filter(x => filter === 'ALL' ? true : x.dir === filter);
+      title.textContent = filter === 'IN' ? '💵 பணம் உள்ளே வந்த விவரம்' : filter === 'OUT' ? '💸 செலவான பணம் விவரம்' : '🏦 அனைத்து கல்லா பரிவர்த்தனைகள்';
+      list.innerHTML = rows.length
+        ? rows.slice().reverse().map(r => `
+            <div class="flex justify-between items-center bg-white px-3 py-1.5 rounded-xl border border-yellow-300">
+              <span><strong>${r.label}</strong> <small class="text-gray-500">(${r.mode} • ${r.time})</small></span>
+              <span class="font-extrabold ${r.dir === 'IN' ? 'text-emerald-700' : 'text-rose-700'}">${r.dir === 'IN' ? '+' : '-'} ₹${r.amt.toFixed(2)}</span>
+            </div>
+          `).join('')
+        : `<p class="text-gray-500">பரிவர்த்தனைகள் எதுவும் இல்லை.</p>`;
+      panel.classList.remove('hidden');
+    }
+
+    async function handleBillPhotoUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const rawArea = document.getElementById('billRawText');
+      rawArea.value = '⏳ Tesseract.js OCR பில் டெக்ஸ்ட் படிக்கிறது...';
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const img = new Image();
+        img.onload = async () => {
+          const maxW = 1200;
+          const scale = img.width > maxW ? maxW / img.width : 1;
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          db.currentBillPhotoData = jpegDataUrl;
+          persist();
+
+          try {
+            if (!window.Tesseract) throw new Error('Tesseract.js not loaded');
+            const worker = await Tesseract.createWorker('eng+tam');
+            const { data } = await worker.recognize(jpegDataUrl);
+            await worker.terminate();
+
+            const extracted = (data && data.text ? data.text : '').trim();
+            rawArea.value = extracted || 'பில்லில் தெளிவான எழுத்து கிடைக்கவில்லை.';
+            if (extracted) autoExtractFromBillText();
+          } catch (err) {
+            rawArea.value = `OCR பிழை: ${err.message}. கீழே பில் விவரத்தை டைப் செய்து Auto-Extract அழுத்தவும்.`;
+          }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function autoExtractFromBillText() {
+      const txt = document.getElementById('billRawText').value.trim();
+      if (!txt) return alert('பில் விவரம் / OCR டெக்ஸ்ட்டை உள்ளிடவும்.');
+
+      const partyName = document.getElementById('purPartySelect').value;
+      const partyObj = db.parties.find(p => p.name === partyName);
+
+      if (partyObj) {
+        const gstMatch = txt.match(/\b\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]\b/i);
+        const mobMatch = txt.match(/\b[6-9]\d{9}\b/);
+        const accMatch = txt.match(/\b\d{9,18}\b/);
+        if (gstMatch && !partyObj.gst) partyObj.gst = gstMatch[0].toUpperCase();
+        if (mobMatch && !partyObj.phone) partyObj.phone = mobMatch[0];
+        if (accMatch && !partyObj.acc) partyObj.acc = accMatch[0];
+      }
+
+      let addedCount = 0;
+      const lines = txt.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      lines.forEach((line, idx) => {
+        const m = line.match(/^([a-zA-Z\u0B80-\u0BFF][a-zA-Z\u0B80-\u0BFF\s.-]{1,30}?)\s+(\d+(?:\.\d+)?)\s*(?:kg|g|l|ml|nos|pcs)?\s*[@₹-]?\s*(\d+(?:\.\d+)?)/i);
+        if (m) {
+          const rawName = m[1].trim();
+          const qty = parseFloat(m[2]);
+          const rate = parseFloat(m[3]);
+          if (qty > 0 && rate > 0 && !/gstin|total|bill|inv|date|mob|phone/i.test(rawName)) {
+            const tam = /[\u0B80-\u0BFF]/.test(rawName) ? rawName : tanglishToTamil(rawName);
+            const base = qty * rate;
+            const cgst = base * 0.025;
+            const sgst = base * 0.025;
+            db.draftPurItems.push({ id: Date.now() + idx + addedCount, date: getActiveDateFormatted(), eng: rawName, tam, qty, rate, cgst, sgst, igst: 0, total: base + cgst + sgst });
+            addedCount++;
+          }
+        }
+      });
+
+      if (!addedCount) alert('மாஸ்டர் விவரங்கள் சரிபார்க்கப்பட்டன.');
+      persist();
+    }
+
+    function openBillZoom(billId) {
+      const b = db.savedPurBills.find(x => x.id === billId);
+      if (!b || !b.jpegData) return alert('பில் போட்டோ இல்லை.');
+      currentZoom = 1;
+      document.getElementById('photoModalTitle').textContent = `Bill JPEG — ${b.party} (${b.date})`;
+      const img = document.getElementById('photoModalImg');
+      img.src = b.jpegData;
+      img.style.transform = 'scale(1)';
+      document.getElementById('photoModal').classList.remove('hidden');
+    }
+
+    function adjustZoom(delta) {
+      currentZoom = Math.min(3, Math.max(0.5, currentZoom + delta));
+      document.getElementById('photoModalImg').style.transform = `scale(${currentZoom})`;
+    }
+
+    function resetZoom() {
+      currentZoom = 1;
+      document.getElementById('photoModalImg').style.transform = 'scale(1)';
+    }
+
+    function calcPurLine() {
+      const qty = parseFloat(document.getElementById('pQty').value) || 0;
+      const rate = parseFloat(document.getElementById('pRate').value) || 0;
+      const gstPct = parseFloat(document.getElementById('pGstPct').value) || 0;
+      const gstType = document.getElementById('pGstType').value;
+
+      const base = qty * rate;
+      let cgst = 0, sgst = 0, igst = 0;
+      if (gstType === 'CGST_SGST') {
+        cgst = (base * gstPct) / 200;
+        sgst = (base * gstPct) / 200;
+      } else {
+        igst = (base * gstPct) / 100;
+      }
+      const total = base + cgst + sgst + igst;
+      document.getElementById('pBaseAmt').textContent = base.toFixed(2);
+      document.getElementById('pCgstAmt').textContent = cgst.toFixed(2);
+      document.getElementById('pSgstAmt').textContent = sgst.toFixed(2);
+      document.getElementById('pIgstAmt').textContent = igst.toFixed(2);
+      document.getElementById('pLineTotal').textContent = total.toFixed(2);
+      return { base, cgst, sgst, igst, total, qty, rate };
+    }
+
+    function addOrUpdateDraftItem() {
+      const eng = document.getElementById('pItemEng').value.trim();
+      const tam = document.getElementById('pItemTam').value.trim() || tanglishToTamil(eng);
+      const { cgst, sgst, igst, total, qty, rate } = calcPurLine();
+      if (!tam || qty <= 0 || rate <= 0) return alert('பொருள் பெயர், அளவு மற்றும் யூனிட் விலையை உள்ளிடவும்.');
+
+      const existing = db.draftPurItems.find(x => x.tam === tam);
+      if (existing) {
+        existing.date = getActiveDateFormatted();
+        existing.eng = eng || existing.eng;
+        existing.qty = qty;
+        existing.rate = rate;
+        existing.cgst = cgst;
+        existing.sgst = sgst;
+        existing.igst = igst;
+        existing.total = total;
+      } else {
+        db.draftPurItems.push({ id: Date.now(), date: getActiveDateFormatted(), eng: eng || tam, tam, qty, rate, cgst, sgst, igst, total });
+      }
+      document.getElementById('pItemEng').value = '';
+      document.getElementById('pItemTam').value = '';
+      document.getElementById('pQty').value = '';
+      document.getElementById('pRate').value = '';
+      calcPurLine();
+      persist();
+    }
+
+    function modifyDraftItem(idx) {
+      const item = db.draftPurItems[idx];
+      if (!item) return;
+      document.getElementById('pItemEng').value = item.eng;
+      document.getElementById('pItemTam').value = item.tam;
+      document.getElementById('pQty').value = item.qty;
+      document.getElementById('pRate').value = item.rate;
+      calcPurLine();
+    }
+
+    function removeDraftItem(idx) {
+      db.draftPurItems.splice(idx, 1);
+      persist();
+    }
+
+    function openNewPartyBox() {
+      document.getElementById('newPartyCard').classList.remove('hidden');
+    }
+
+    function saveNewParty() {
+      const name = document.getElementById('pmName').value.trim();
+      const addr = document.getElementById('pmAddr').value.trim();
+      const phone = document.getElementById('pmPhone').value.trim();
+      const gst = document.getElementById('pmGst').value.trim();
+      const acc = document.getElementById('pmAcc').value.trim();
+      if (!name) return alert('பெயரை உள்ளிடவும்.');
+
+      const found = db.parties.find(p => p.name.toLowerCase() === name.toLowerCase());
+      if (found) {
+        if (!found.addr && addr) found.addr = addr;
+        if (!found.phone && phone) found.phone = phone;
+        if (!found.gst && gst) found.gst = gst;
+        if (!found.acc && acc) found.acc = acc;
+      } else {
+        db.parties.push({ name, addr, phone, gst, acc });
+      }
+      document.getElementById('pmName').value = '';
+      document.getElementById('pmAddr').value = '';
+      document.getElementById('pmPhone').value = '';
+      document.getElementById('pmGst').value = '';
+      document.getElementById('pmAcc').value = '';
+      document.getElementById('newPartyCard').classList.add('hidden');
+      persist();
+    }
+
+    function saveFullPurchaseBill() {
+      if (!db.draftPurItems.length) return alert('பர்சேஸ் பில்லில் குறைந்தது 1 ஐட்டம் சேர்க்கவும்.');
+      const party = document.getElementById('purPartySelect').value;
+      const paidChoice = document.getElementById('purPaidChoice').value;
+      const billTotal = db.draftPurItems.reduce((s, i) => s + i.total, 0);
+      const dt = getActiveDateFormatted();
+      const itemsCopy = db.draftPurItems.map(x => ({ ...x }));
+
+      db.draftPurItems.forEach(it => {
+        if (!db.stock[it.tam]) db.stock[it.tam] = { unitRate: it.rate, opening: 0, purchase: 0, closing: 0 };
+        db.stock[it.tam].unitRate = it.rate;
+        db.stock[it.tam].purchase += it.qty;
+        db.stock[it.tam].closing = db.stock[it.tam].opening + db.stock[it.tam].purchase;
+      });
+
+      const isFrozen = (paidChoice === 'YES');
+      db.savedPurBills.push({
+        id: Date.now(),
+        date: dt,
+        party,
+        items: itemsCopy,
+        total: billTotal,
+        paid: paidChoice,
+        frozen: isFrozen,
+        jpegData: db.currentBillPhotoData || ''
+      });
+
+      if (isFrozen) {
+        db.cashTx.push({ date: dt, time: `${dt} ${new Date().toLocaleTimeString()}`, dir: 'OUT', mode: 'Cash', label: `Purchase Bill Paid (${party})`, amt: billTotal });
+      }
+
+      db.draftPurItems = [];
+      db.currentBillPhotoData = '';
+      document.getElementById('purBillPhotoFile').value = '';
+      document.getElementById('billRawText').value = '';
+      persist();
+    }
+
+    function changeSavedBillPaid(billId, newVal) {
+      const b = db.savedPurBills.find(x => x.id === billId);
+      if (!b || b.frozen) return;
+      b.paid = newVal;
+      if (newVal === 'YES') {
+        b.frozen = true;
+        const dt = getActiveDateFormatted();
+        db.cashTx.push({ date: dt, time: `${dt} ${new Date().toLocaleTimeString()}`, dir: 'OUT', mode: 'Cash', label: `Purchase Bill Paid (${b.party})`, amt: b.total });
+      }
+      persist();
+    }
+
+    function createNewLedgerCategory() {
+      const name = prompt('புதிய லெட்ஜர் கேட்டகிரி பெயர்:');
+      if (name && name.trim() && !db.ledgerCategories.includes(name.trim())) {
+        db.ledgerCategories.push(name.trim());
+        persist();
+      }
+    }
+
+    function saveLedgerEntry() {
+      const cat = document.getElementById('ldgCat').value;
+      const party = document.getElementById('ldgPartySelect').value || 'General';
+      const mode = document.getElementById('ldgMode').value;
+      const dir = document.getElementById('ldgDir').value;
+      const amt = parseFloat(document.getElementById('ldgAmt').value) || 0;
+      const note = document.getElementById('ldgNote').value.trim();
+      if (amt <= 0) return alert('தொகையை உள்ளிடவும்.');
+
+      const dt = getActiveDateFormatted();
+      db.ledgerEntries.push({ id: Date.now(), date: dt, cat, party, mode, dir, amt, note });
+      db.cashTx.push({ date: dt, time: `${dt} ${new Date().toLocaleTimeString()}`, dir, mode, label: `[${cat}] ${party}`, amt });
+      document.getElementById('ldgAmt').value = '';
+      document.getElementById('ldgNote').value = '';
+      persist();
+    }
+
+    function modifyLedgerEntry(id) {
+      const item = db.ledgerEntries.find(x => x.id === id);
+      if (!item) return;
+      const newAmt = parseFloat(prompt(`${item.party} — புதிய தொகை (₹):`, item.amt));
+      if (!isNaN(newAmt) && newAmt > 0) {
+        item.amt = newAmt;
+        persist();
+      }
+    }
+
+    function deleteLedgerEntry(id) {
+      db.ledgerEntries = db.ledgerEntries.filter(x => x.id !== id);
+      persist();
+    }
+
+    function printReceipt(id) {
+      const item = db.ledgerEntries.find(x => x.id === id);
+      if (!item) return;
+      document.getElementById('printArea').innerHTML = `
+        <div style="width:100%;text-align:center;border-bottom:1px dashed #000;padding-bottom:3px;">
+          <div style="font-weight:bold;font-size:12px;">${db.companyProfile.brand}</div>
+          <div style="font-weight:bold;font-size:10px;">PAYMENT / RECEIPT</div>
+          <div style="font-size:10px;">${db.companyProfile.addr}</div>
+        </div>
+        <div style="margin-top:6px;font-size:10.5px;">
+          <div>Date: ${item.date}</div>
+          <div>Ledger: ${item.cat} (${item.mode})</div>
+          <div>Party: <strong>${item.party}</strong></div>
+          <div>Note: ${item.note || '-'}</div>
+          <div style="margin-top:4px;font-size:12px;font-weight:bold;">Amount: ₹ ${item.amt.toFixed(2)}</div>
+        </div>
+      `;
+      window.print();
+    }
+
+    function computeRecipeConsumedByStock() {
+      const map = {};
+      Object.entries(db.soldItems || {}).forEach(([mIdStr, soldQty]) => {
+        const mId = parseInt(mIdStr, 10);
+        const rList = db.recipes[mId] || [];
+        rList.forEach(ing => {
+          map[ing.stockKey] = (map[ing.stockKey] || 0) + (ing.qty * soldQty);
+        });
+      });
+      return map;
+    }
+
+    function updateStockClosing() {
+      const k = document.getElementById('stkItemSelect').value;
+      const openVal = document.getElementById('stkOpenInput').value;
+      const closeVal = document.getElementById('stkCloseInput').value;
+      if (!k || !db.stock[k]) return;
+      if (openVal !== '' && !isNaN(parseFloat(openVal))) db.stock[k].opening = parseFloat(openVal);
+      if (closeVal !== '' && !isNaN(parseFloat(closeVal))) db.stock[k].closing = parseFloat(closeVal);
+      document.getElementById('stkOpenInput').value = '';
+      document.getElementById('stkCloseInput').value = '';
+      persist();
+    }
+
+    function saveDishYieldFromPrimary() {
+      const menuId = parseInt(document.getElementById('rcpMenuSelect').value, 10);
+      const primaryKey = document.getElementById('rcpPrimaryMat').value;
+      const yieldCount = parseFloat(document.getElementById('rcpYieldCountInp').value);
+      if (!menuId || !primaryKey || isNaN(yieldCount) || yieldCount <= 0) {
+        return alert('1 Kg-க்கு எத்தனை கிடைக்கும் என்ற எண்ணிக்கையை உள்ளிடவும்.');
+      }
+      if (!db.recipes[menuId]) db.recipes[menuId] = [];
+      const existingPri = db.recipes[menuId].find(r => r.isPrimary);
+      const qtyPerUnit = 1 / yieldCount;
+      if (existingPri) {
+        existingPri.stockKey = primaryKey;
+        existingPri.yieldPerKg = yieldCount;
+        existingPri.qty = qtyPerUnit;
+      } else {
+        db.recipes[menuId].unshift({ stockKey: primaryKey, qty: qtyPerUnit, yieldPerKg: yieldCount, isPrimary: true });
+      }
+      document.getElementById('rcpYieldCountInp').value = '';
+      persist();
+    }
+
+    function addSupportingMaterialToDish() {
+      const menuId = parseInt(document.getElementById('rcpMenuSelect').value, 10);
+      const suppKey = document.getElementById('rcpSuppStockItem').value;
+      const qty = parseFloat(document.getElementById('rcpSuppQtyInp').value);
+      if (!menuId || !suppKey || isNaN(qty) || qty <= 0) return alert('துணைப் பொருள் மற்றும் அளவை உள்ளிடவும்.');
+      if (!db.recipes[menuId]) db.recipes[menuId] = [];
+      db.recipes[menuId].push({ stockKey: suppKey, qty, isPrimary: false });
+      document.getElementById('rcpSuppQtyInp').value = '';
+      persist();
+    }
+
+    function updateOverheadCosts() {
+      const menuId = parseInt(document.getElementById('rcpMenuSelect').value, 10);
+      const power = parseFloat(document.getElementById('rcpPowerCost').value) || 0;
+      const labour = parseFloat(document.getElementById('rcpLabourCost').value) || 0;
+      const maint = parseFloat(document.getElementById('rcpMaintCost').value) || 0;
+      db.dishOverheads[menuId] = { power, labour, maint };
+      localStorage.setItem('VGP_WORLD_V12', JSON.stringify(db));
+      renderMasterCostingSheet(true);
+    }
+
+    function createNewRawMaterialQuick() {
+      const eng = prompt('புதிய மூலப்பொருள் ஆங்கிலம்/தங்கிலீஷ் (Ex: ulundu):');
+      if (!eng || !eng.trim()) return;
+      const tam = prompt('தமிழ் பெயர்:', tanglishToTamil(eng));
+      const rate = parseFloat(prompt('1 Kg/Unit விலை (₹):', '100')) || 100;
+      const key = (tam || eng).trim();
+      if (!db.stock[key]) db.stock[key] = { unitRate: rate, opening: 0, purchase: 0, closing: 0 };
+      persist();
+    }
+
+    function removeRecipeIngredient(menuId, idx) {
+      db.recipes[menuId].splice(idx, 1);
+      persist();
+    }
+
+    function togglePermission(slotKey, menuId) {
+      if (!['owner', 'admin2', 'manager'].includes(db.role)) return alert('Admin / Manager மட்டுமே மாற்ற முடியும்.');
+      const list = db.permissions[slotKey] || [];
+      if (list.includes(menuId)) {
+        if (list.length === 1) return alert('குறைந்தது 1 மெனு இருக்க வேண்டும்.');
+        db.permissions[slotKey] = list.filter(x => x !== menuId);
+      } else {
+        list.push(menuId);
+        db.permissions[slotKey] = list;
+      }
+      persist();
+    }
+
+    function isDateInRange(dispDate, fromIso, toIso) {
+      const iso = parseAnyDateToIso(dispDate);
+      if (fromIso && iso < fromIso) return false;
+      if (toIso && iso > toIso) return false;
+      return true;
+    }
+
+    function openReportBreakup(type, specificDateDisp = '') {
+      const fromIso = document.getElementById('rptFromDate')?.value || '';
+      const toIso = document.getElementById('rptToDate')?.value || '';
+      const box = document.getElementById('rptBreakupBox');
+      const title = document.getElementById('rptBreakupTitle');
+      const body = document.getElementById('rptBreakupBody');
+
+      if (type === 'DATE_TX' && specificDateDisp) {
+        const rows = db.cashTx.filter(x => (x.date || getActiveDateFormatted()) === specificDateDisp);
+        title.textContent = `📅 தேதி ${specificDateDisp} — அனைத்து பரிவர்த்தனைகள் (Transactions)`;
+        body.innerHTML = rows.length
+          ? rows.map(r => `<div class="flex justify-between bg-white px-3 py-1.5 rounded-xl border border-yellow-300"><span><strong>[${r.mode}]</strong> ${r.label} <small class="text-gray-500">(${r.time})</small></span><strong class="${r.dir === 'IN' ? 'text-emerald-700' : 'text-rose-700'}">${r.dir === 'IN' ? '+' : '-'}₹${r.amt.toFixed(2)}</strong></div>`).join('')
+          : `<p class="text-gray-500">இந்தத் தேதியில் பரிவர்த்தனைகள் இல்லை.</p>`;
+      } else if (type === 'SALES') {
+        const rows = db.cashTx.filter(x => x.dir === 'IN' && isDateInRange(x.date, fromIso, toIso));
+        title.textContent = `💵 விற்பனை & வரவு விவரம் (${formatDisplayDate(fromIso)} – ${formatDisplayDate(toIso)})`;
+        body.innerHTML = rows.length
+          ? rows.map(r => `<div class="flex justify-between bg-white px-3 py-1.5 rounded-xl border border-yellow-300"><span>📅 ${r.date} | <strong>[${r.mode}]</strong> ${r.label}</span><strong class="text-emerald-700">+₹${r.amt.toFixed(2)}</strong></div>`).join('')
+          : `<p class="text-gray-500">விற்பனை பதிவுகள் இல்லை.</p>`;
+      } else if (type === 'PURCHASE') {
+        const rows = db.savedPurBills.filter(b => isDateInRange(b.date, fromIso, toIso));
+        title.textContent = `🧾 பர்சேஸ் பில்கள் விவரம் (${formatDisplayDate(fromIso)} – ${formatDisplayDate(toIso)})`;
+        body.innerHTML = rows.length
+          ? rows.map(b => `<div class="flex justify-between bg-white px-3 py-1.5 rounded-xl border border-yellow-300"><span>📅 ${b.date} | <strong>${b.party}</strong> (${b.paid === 'YES' ? 'PAID' : 'UNPAID'})</span><strong>₹${b.total.toFixed(2)}</strong></div>`).join('')
+          : `<p class="text-gray-500">பர்சேஸ் பில்கள் இல்லை.</p>`;
+      } else if (type === 'PAYROLL') {
+        title.textContent = '👷 எம்ப்ளாயி சம்பள பாக்கி விவரம்';
+        body.innerHTML = db.employees.map(e => {
+          const earned = (e.daysWorked || 0) * (e.dailyWage || 0);
+          const paid = (e.advance || 0) + (e.midSalary || 0);
+          const due = earned - paid;
+          return `<div class="flex justify-between bg-white px-3 py-1.5 rounded-xl border border-yellow-300"><span><strong>${e.name}</strong> — Earned: ₹${earned} | Paid: ₹${paid}</span><strong class="${due >= 0 ? 'text-emerald-700' : 'text-rose-700'}">Due: ₹${due.toFixed(2)}</strong></div>`;
+        }).join('');
+      } else if (type === 'CANCELLED') {
+        const rows = db.cancelledItems.filter(c => isDateInRange(c.date, fromIso, toIso));
+        title.textContent = `🚫 கேன்சல் ஐட்டங்கள் விவரம் (${formatDisplayDate(fromIso)} – ${formatDisplayDate(toIso)})`;
+        body.innerHTML = rows.length
+          ? rows.map(c => `<div class="flex justify-between bg-white px-3 py-1.5 rounded-xl border border-yellow-300"><span>📅 ${c.date} | <strong>${c.table}</strong> (${c.staff}) — <strong>${c.tam}</strong> × ${c.qty}</span><strong class="text-rose-700">₹${(c.price * c.qty).toFixed(2)}</strong></div>`).join('')
+          : `<p class="text-gray-500">கேன்சல் பதிவுகள் இல்லை.</p>`;
+      }
+      box.classList.remove('hidden');
+    }
+
+    function renderIndividualEmployeeReport() {
+      const sel = document.getElementById('rptEmpSelect');
+      if (!sel) return;
+      const empId = parseInt(sel.value, 10);
+      const emp = db.employees.find(e => e.id === empId);
+      if (!emp) return;
+
+      const earned = (emp.daysWorked || 0) * (emp.dailyWage || 0);
+      const paid = (emp.advance || 0) + (emp.midSalary || 0);
+      const netDue = earned - paid;
+
+      document.getElementById('rptEmpSummaryStrip').innerHTML = `
+        <div class="p-2.5 rounded-xl bg-yellow-50 border border-yellow-300"><div>சம்பள வரவு (Earned)</div><strong class="text-base text-emerald-700">₹ ${earned.toFixed(2)}</strong></div>
+        <div class="p-2.5 rounded-xl bg-yellow-50 border border-yellow-300"><div>அட்வான்ஸ் & சம்பள செலவு (Paid)</div><strong class="text-base text-rose-700">₹ ${paid.toFixed(2)}</strong></div>
+        <div class="p-2.5 rounded-xl bg-yellow-50 border border-yellow-300"><div>நாம் கொடுக்க வேண்டியது</div><strong class="text-base text-amber-950">₹ ${Math.max(0, netDue).toFixed(2)}</strong></div>
+        <div class="p-2.5 rounded-xl bg-yellow-50 border border-yellow-300"><div>நமக்கு வர வேண்டியது</div><strong class="text-base text-rose-700">₹ ${Math.max(0, -netDue).toFixed(2)}</strong></div>
+      `;
+
+      const empTx = db.ledgerEntries.filter(x => x.party.toLowerCase().includes(emp.name.toLowerCase()));
+      document.getElementById('rptEmpTxList').innerHTML = empTx.length
+        ? empTx.slice().reverse().map(t => `<div class="flex justify-between bg-yellow-50/70 px-3 py-1.5 rounded-xl border border-yellow-200"><span>📅 ${t.date} | <strong>[${t.cat}]</strong> ${t.note || ''}</span><strong>₹${t.amt.toFixed(2)}</strong></div>`).join('')
+        : `<p class="text-gray-500 text-xs">தனி பரிவர்த்தனை பதிவுகள் இல்லை.</p>`;
+    }
+
+    function renderIndividualPartyReport() {
+      const sel = document.getElementById('rptPartySelect');
+      if (!sel) return;
+      const partyName = sel.value;
+      const bills = db.savedPurBills.filter(b => b.party === partyName);
+      const extraPayments = db.ledgerEntries.filter(x => x.party === partyName && x.dir === 'OUT');
+
+      const totalBought = bills.reduce((s, b) => s + b.total, 0);
+      const paidOnBills = bills.filter(b => b.paid === 'YES').reduce((s, b) => s + b.total, 0);
+      const paidViaLedger = extraPayments.reduce((s, x) => s + x.amt, 0);
+      const totalPaid = paidOnBills + paidViaLedger;
+      const balanceDue = Math.max(0, totalBought - totalPaid);
+
+      document.getElementById('rptPartySummaryStrip').innerHTML = `
+        <div class="p-2.5 rounded-xl bg-yellow-50 border border-yellow-300"><div>மொத்த கொள்முதல் (Purchased)</div><strong class="text-base text-amber-950">₹ ${totalBought.toFixed(2)}</strong></div>
+        <div class="p-2.5 rounded-xl bg-yellow-50 border border-yellow-300"><div>கொடுத்த பணம் (Paid)</div><strong class="text-base text-emerald-700">₹ ${totalPaid.toFixed(2)}</strong></div>
+        <div class="p-2.5 rounded-xl bg-yellow-50 border border-yellow-300"><div>கொடுக்க வேண்டிய பாக்கி (Balance Due)</div><strong class="text-base text-rose-700">₹ ${balanceDue.toFixed(2)}</strong></div>
+      `;
+
+      document.getElementById('rptPartyBillsBody').innerHTML = bills.length
+        ? bills.slice().reverse().map(b => {
+            const itemsTxt = (b.items && b.items.length)
+              ? b.items.map(it => `${it.tam} (${it.qty} × ₹${it.rate})`).join(', ')
+              : 'Purchase Bill Items';
+            return `
+              <tr class="border-b">
+                <td class="p-2">${b.date}</td>
+                <td class="p-2 font-bold">${itemsTxt}</td>
+                <td class="p-2 font-extrabold">₹${b.total.toFixed(2)}</td>
+                <td class="p-2 text-emerald-700 font-bold">₹${b.paid === 'YES' ? b.total.toFixed(2) : '0.00'}</td>
+                <td class="p-2 font-bold ${b.paid === 'YES' ? 'text-emerald-700' : 'text-rose-700'}">${b.paid === 'YES' ? 'PAID' : 'DUE'}</td>
+              </tr>
+            `;
+          }).join('')
+        : `<tr><td colspan="5" class="p-3 text-center text-gray-400">இந்தப் பார்ட்டியிடம் கொள்முதல் பதிவுகள் இல்லை</td></tr>`;
+    }
+
+    function renderReportsSection() {
+      const fromInp = document.getElementById('rptFromDate');
+      const toInp = document.getElementById('rptToDate');
+      if (!fromInp.value) {
+        const d = new Date();
+        fromInp.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+      }
+      if (!toInp.value) toInp.value = db.activeDate || todayIso();
+
+      const fromIso = fromInp.value;
+      const toIso = toInp.value;
+
+      const filteredTx = db.cashTx.filter(x => isDateInRange(x.date, fromIso, toIso));
+      const totalInRange = filteredTx.filter(x => x.dir === 'IN').reduce((s, x) => s + x.amt, 0);
+      const filteredBills = db.savedPurBills.filter(b => isDateInRange(b.date, fromIso, toIso));
+      const purSum = filteredBills.reduce((s, b) => s + b.total, 0);
+      const payrollDue = db.employees.reduce((s, e) => s + (((e.daysWorked || 0) * (e.dailyWage || 0)) - ((e.advance || 0) + (e.midSalary || 0))), 0);
+      const filteredCancel = db.cancelledItems.filter(c => isDateInRange(c.date, fromIso, toIso));
+
+      document.getElementById('rptSalesSummary').textContent = `₹ ${totalInRange.toFixed(2)}`;
+      document.getElementById('rptPurchaseSummary').textContent = `₹ ${purSum.toFixed(2)} (${filteredBills.length} Bills)`;
+      document.getElementById('rptPayrollSummary').textContent = `₹ ${payrollDue.toFixed(2)}`;
+      document.getElementById('rptCancelledSummary').textContent = `${filteredCancel.length} Items`;
+
+      const dateMap = {};
+      filteredTx.forEach(tx => {
+        const dKey = tx.date || getActiveDateFormatted();
+        if (!dateMap[dKey]) dateMap[dKey] = { cashIn: 0, upiIn: 0, cardIn: 0, cashOut: 0, bankOut: 0 };
+        if (tx.dir === 'IN') {
+          if (tx.mode === 'Cash') dateMap[dKey].cashIn += tx.amt;
+          else if (tx.mode === 'UPI') dateMap[dKey].upiIn += tx.amt;
+          else dateMap[dKey].cardIn += tx.amt;
+        } else {
+          if (tx.mode === 'Cash') dateMap[dKey].cashOut += tx.amt;
+          else dateMap[dKey].bankOut += tx.amt;
+        }
+      });
+
+      const dates = Object.keys(dateMap).sort((a, b) => parseAnyDateToIso(a).localeCompare(parseAnyDateToIso(b)));
+      let gCashIn = 0, gUpiIn = 0, gCardIn = 0, gCashOut = 0, gBankOut = 0;
+
+      document.getElementById('adminDateWiseBody').innerHTML = dates.length
+        ? dates.map(d => {
+            const r = dateMap[d];
+            gCashIn += r.cashIn; gUpiIn += r.upiIn; gCardIn += r.cardIn; gCashOut += r.cashOut; gBankOut += r.bankOut;
+            const netDay = (r.cashIn + r.upiIn + r.cardIn) - (r.cashOut + r.bankOut);
+            return `
+              <tr class="border-b hover:bg-yellow-50">
+                <td class="p-2.5"><button onclick="openReportBreakup('DATE_TX', '${d}')" class="font-extrabold text-amber-900 underline">📅 ${d}</button></td>
+                <td class="p-2.5 font-bold text-emerald-700">₹${r.cashIn.toFixed(2)}</td>
+                <td class="p-2.5 font-bold text-emerald-700">₹${r.upiIn.toFixed(2)}</td>
+                <td class="p-2.5 font-bold text-emerald-700">₹${r.cardIn.toFixed(2)}</td>
+                <td class="p-2.5 font-bold text-rose-700">₹${r.cashOut.toFixed(2)}</td>
+                <td class="p-2.5 font-bold text-rose-700">₹${r.bankOut.toFixed(2)}</td>
+                <td class="p-2.5 font-extrabold text-amber-950">₹${netDay.toFixed(2)}</td>
+              </tr>
+            `;
+          }).join('')
+        : `<tr><td colspan="7" class="p-4 text-center text-gray-400">இந்தத் தேதிகளில் பரிவர்த்தனைகள் இல்லை</td></tr>`;
+
+      const gNet = (gCashIn + gUpiIn + gCardIn) - (gCashOut + gBankOut);
+      document.getElementById('adminDateWiseFoot').innerHTML = `
+        <tr>
+          <td class="p-2.5">GRAND TOTAL</td>
+          <td class="p-2.5">₹${gCashIn.toFixed(2)}</td>
+          <td class="p-2.5">₹${gUpiIn.toFixed(2)}</td>
+          <td class="p-2.5">₹${gCardIn.toFixed(2)}</td>
+          <td class="p-2.5">₹${gCashOut.toFixed(2)}</td>
+          <td class="p-2.5">₹${gBankOut.toFixed(2)}</td>
+          <td class="p-2.5">₹${gNet.toFixed(2)}</td>
+        </tr>
+      `;
+
+      const rEmpSel = document.getElementById('rptEmpSelect');
+      const prevEmp = rEmpSel.value;
+      rEmpSel.innerHTML = db.employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+      if (prevEmp) rEmpSel.value = prevEmp;
+      renderIndividualEmployeeReport();
+
+      const rPartySel = document.getElementById('rptPartySelect');
+      const prevPty = rPartySel.value;
+      const pNames = Array.from(new Set([...db.parties.map(p => p.name), ...db.savedPurBills.map(b => b.party)]));
+      rPartySel.innerHTML = pNames.map(n => `<option value="${n}">${n}</option>`).join('');
+      if (prevPty && pNames.includes(prevPty)) rPartySel.value = prevPty;
+      renderIndividualPartyReport();
+    }
+
+    function renderMenuGrid() {
+      const q = (document.getElementById('menuSearch')?.value || '').toLowerCase();
+      const canEditPrice = ['owner', 'admin2', 'manager'].includes(db.role);
+      const list = db.menu.filter(m => m.tam.toLowerCase().includes(q) || m.eng.toLowerCase().includes(q));
+      document.getElementById('menuGrid').innerHTML = list.map(m => {
+        const mainTitle = getMenuLabel(m);
+        const subTitle = db.menuLang === 'en' ? m.tam : m.eng;
+        return `
+          <div class="rounded-2xl border-2 border-yellow-400 bg-white overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div onclick="addToOrder(${m.id})" class="cursor-pointer">
+              <img src="${m.img}" alt="${mainTitle}" class="w-full h-24 object-cover border-b border-yellow-200" />
+              <div class="p-2.5">
+                <div class="text-base font-extrabold text-amber-950">${mainTitle}</div>
+                <div class="text-xs font-semibold text-gray-500">${subTitle}</div>
+              </div>
+            </div>
+            <div class="px-2.5 pb-2.5 flex items-center justify-between gap-1">
+              <span onclick="addToOrder(${m.id})" class="cursor-pointer text-base font-extrabold text-amber-950 bg-yellow-200 px-2 py-0.5 rounded-lg">₹ ${m.price}</span>
+              ${canEditPrice
+                ? `<button onclick="editMenuPrice(${m.id})" class="gold-btn text-xs font-extrabold px-2 py-1 rounded-lg">${db.menuLang === 'en' ? '✏️ Rate' : '✏️ விலை'}</button>`
+                : `<span class="text-[11px] text-gray-400">🔒</span>`}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderMasterCostingSheet(skipInputSync = false) {
+      const rcpSel = document.getElementById('rcpMenuSelect');
+      if (!rcpSel) return;
+      const prevM = parseInt(rcpSel.value, 10);
+      rcpSel.innerHTML = db.menu.map(m => `<option value="${m.id}">${getMenuLabel(m)}</option>`).join('');
+      if (prevM && db.menu.some(m => m.id === prevM)) rcpSel.value = prevM;
+
+      const curMenuId = parseInt(rcpSel.value, 10);
+      const sKeys = Object.keys(db.stock);
+
+      const priSel = document.getElementById('rcpPrimaryMat');
+      const curPri = priSel.value;
+      priSel.innerHTML = sKeys.map(k => `<option value="${k}">${k} (₹${db.stock[k].unitRate}/Kg)</option>`).join('');
+      if (curPri && sKeys.includes(curPri)) priSel.value = curPri;
+
+      document.getElementById('rcpSuppStockItem').innerHTML = sKeys.map(k => `<option value="${k}">${k} (₹${db.stock[k].unitRate}/Kg)</option>`).join('');
+
+      const ov = db.dishOverheads[curMenuId] || { power: 0, labour: 0, maint: 0 };
+      if (!skipInputSync) {
+        if (document.activeElement !== document.getElementById('rcpPowerCost')) document.getElementById('rcpPowerCost').value = ov.power;
+        if (document.activeElement !== document.getElementById('rcpLabourCost')) document.getElementById('rcpLabourCost').value = ov.labour;
+        if (document.activeElement !== document.getElementById('rcpMaintCost')) document.getElementById('rcpMaintCost').value = ov.maint;
+      }
+
+      const ingList = db.recipes[curMenuId] || [];
+      document.getElementById('rcpIngredientsBody').innerHTML = ingList.length
+        ? ingList.map((ing, idx) => {
+            const rate = db.stock[ing.stockKey]?.unitRate || 0;
+            const lc = ing.qty * rate;
+            const label = ing.isPrimary && ing.yieldPerKg
+              ? `${ing.stockKey} (1 Kg → ${ing.yieldPerKg} pcs)`
+              : `${ing.stockKey} (துணைப் பொருள்)`;
+            return `<tr class="border-b"><td class="p-2.5 font-bold">${label}</td><td class="p-2.5">${ing.qty.toFixed(4)} Kg</td><td class="p-2.5">₹${rate}</td><td class="p-2.5 font-extrabold">₹${lc.toFixed(2)}</td><td class="p-2.5"><button onclick="removeRecipeIngredient(${curMenuId}, ${idx})" class="text-rose-700 font-bold text-xs">நீக்கு</button></td></tr>`;
+          }).join('')
+        : `<tr><td colspan="5" class="p-3 text-center text-gray-400">மூலப்பொருள் சேர்க்கவும்</td></tr>`;
+
+      const { totalUnitCost, sellPrice } = getDishUnitCost(curMenuId);
+      const profit = sellPrice - totalUnitCost;
+      document.getElementById('rcpLiveSummary').textContent = `Cost: ₹${totalUnitCost.toFixed(2)} | Profit: ₹${profit.toFixed(2)}`;
+    }
+
+    function renderCostingSection() {
+      const isMaster = db.costingSub !== 'reports';
+      document.getElementById('costingSub-master').classList.toggle('hidden', !isMaster);
+      document.getElementById('costingSub-reports').classList.toggle('hidden', isMaster);
+      document.getElementById('subBtnMaster').className = isMaster
+        ? 'gold-btn font-extrabold px-4 py-2 rounded-xl text-sm'
+        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold px-4 py-2 rounded-xl text-sm';
+      document.getElementById('subBtnCosting').className = !isMaster
+        ? 'gold-btn font-extrabold px-4 py-2 rounded-xl text-sm'
+        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold px-4 py-2 rounded-xl text-sm';
+
+      renderMasterCostingSheet();
+
+      let totalSalesAmt = 0;
+      let totalDishCostAmt = 0;
+      db.menu.forEach(m => {
+        const sq = db.soldItems[m.id] || 0;
+        const { totalUnitCost } = getDishUnitCost(m.id);
+        totalSalesAmt += sq * m.price;
+        totalDishCostAmt += sq * totalUnitCost;
+      });
+      const salesNetProfit = totalSalesAmt - totalDishCostAmt;
+
+      document.getElementById('repSalesVsCost').innerHTML =
+        `[📅 ${getActiveDateFormatted()}] மொத்த விற்பனை: <strong>₹${totalSalesAmt.toFixed(2)}</strong> | மாஸ்டர் காஸ்டிங் செலவு: <strong>₹${totalDishCostAmt.toFixed(2)}</strong> | நிகர லாபம்: <strong class="${salesNetProfit >= 0 ? 'text-emerald-700' : 'text-rose-700'}">₹${salesNetProfit.toFixed(2)}</strong>`;
+
+      const recMap = computeRecipeConsumedByStock();
+      const sKeys = Object.keys(db.stock);
+      let totalVarianceValue = 0;
+      document.getElementById('repStockVsPhysical').innerHTML = sKeys.map(k => {
+        const st = db.stock[k];
+        const used = recMap[k] || 0;
+        const expected = (st.opening + st.purchase) - used;
+        const diffQty = st.closing - expected;
+        totalVarianceValue += diffQty * st.unitRate;
+        return `<div>• [${getActiveDateFormatted()}] <strong>${k}</strong>: Consumed = <strong>${used.toFixed(3)}</strong> | Expected = <strong>${expected.toFixed(3)}</strong> | Physical Closing = <strong>${st.closing}</strong> | Diff = <strong class="${diffQty >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${diffQty >= 0 ? '+' : ''}${diffQty.toFixed(3)}</strong></div>`;
+      }).join('');
+
+      const combinedNet = salesNetProfit + totalVarianceValue;
+      document.getElementById('repCombinedSummary').innerHTML =
+        `[📅 ${getActiveDateFormatted()}] மொத்த நிகர லாபம் (Sales Profit + Stock Variance Value): ₹ ${combinedNet.toFixed(2)}`;
+    }
+
+    function renderAll() {
+      const isEn = db.menuLang === 'en';
+      const dtStr = getActiveDateFormatted();
+      document.getElementById('globalDateInp').value = db.activeDate || todayIso();
+      document.querySelectorAll('.active-date-text').forEach(el => { el.textContent = dtStr; });
+
+      document.getElementById('hdrCompanyName').textContent = db.companyProfile.brand || 'VGP WORLD RESTAURANT';
+      document.getElementById('hdrCompanyAddr').textContent = db.companyProfile.addr || 'வையம்பட்டி (Vaiyampatti)';
+
+      if (document.getElementById('cpBrand') && document.activeElement?.id !== 'cpBrand') {
+        document.getElementById('cpBrand').value = db.companyProfile.brand || '';
+        document.getElementById('cpAddr').value = db.companyProfile.addr || '';
+        document.getElementById('cpLegal').value = db.companyProfile.legal || '';
+        document.getElementById('cpProp').value = db.companyProfile.prop || '';
+        document.getElementById('cpGst').value = db.companyProfile.gst || '';
+        document.getElementById('cpPhone').value = db.companyProfile.phone || '';
+        document.getElementById('cpEmail').value = db.companyProfile.email || '';
+      }
+
+      document.getElementById('btnLangTa').className = !isEn
+        ? 'gold-btn font-extrabold text-xs px-3 py-1 rounded-lg'
+        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg';
+      document.getElementById('btnLangEn').className = isEn
+        ? 'gold-btn font-extrabold text-xs px-3 py-1 rounded-lg'
+        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg';
+
+      const allowedIds = db.permissions[db.role] || ['pos'];
+      const leftMenus = ALL_MENUS.filter(m => allowedIds.includes(m.id) && !m.rightSide);
+      const rightMenus = ALL_MENUS.filter(m => allowedIds.includes(m.id) && m.rightSide);
+      document.getElementById('navBar').innerHTML = `
+        <div class="flex flex-wrap gap-2">
+          ${leftMenus.map(it => `<button onclick="switchTab('${it.id}')" class="gold-btn px-3.5 py-2 rounded-xl text-sm font-extrabold">${isEn ? it.en : it.ta}</button>`).join('')}
+        </div>
+        <div class="ml-auto flex flex-wrap gap-2">
+          ${rightMenus.map(it => `<button onclick="switchTab('${it.id}')" class="bg-white text-amber-950 border-2 border-amber-600 hover:bg-yellow-50 px-3.5 py-2 rounded-xl text-sm font-extrabold">${isEn ? it.en : it.ta}</button>`).join('')}
+        </div>
+      `;
+
+      const cashIn = db.cashTx.filter(x => x.mode === 'Cash' && x.dir === 'IN').reduce((s, x) => s + x.amt, 0);
+      const cashOut = db.cashTx.filter(x => x.mode === 'Cash' && x.dir === 'OUT').reduce((s, x) => s + x.amt, 0);
+      document.getElementById('cashInVal').textContent = `₹ ${cashIn.toFixed(2)}`;
+      document.getElementById('cashOutVal').textContent = `₹ ${cashOut.toFixed(2)}`;
+      document.getElementById('cashHandVal').textContent = `₹ ${(cashIn - cashOut).toFixed(2)}`;
+
+      const stSel = document.getElementById('activeStaff');
+      const curSt = stSel.value;
+      stSel.innerHTML = db.employees.map(e => `<option value="${e.name}">${e.name}</option>`).join('');
+      if (curSt && Array.from(stSel.options).some(o => o.value === curSt)) stSel.value = curSt;
+
+      document.getElementById('tableGrid').innerHTML = db.tables.map(t => {
+        const ord = db.orders[t];
+        const activeList = (ord?.items || []).filter(i => !i.cancelled);
+        const isSelected = db.activeTable === t;
+        let colorCls = 'bg-white text-gray-900 border-gray-300';
+        let stText = isEn ? 'Free' : 'காலி';
+        if (activeList.length) {
+          if (ord.status === 'pay_ready') { colorCls = 'bg-emerald-300 text-emerald-950 border-emerald-600 font-extrabold'; stText = isEn ? 'Pay Ready' : 'பணம் தர'; }
+          else if (ord.status === 'kot_sent') { colorCls = 'bg-amber-300 text-amber-950 border-amber-600 font-extrabold'; stText = isEn ? 'KOT Sent' : 'KOT சென்றது'; }
+          else { colorCls = 'bg-sky-200 text-sky-950 border-sky-500 font-extrabold'; stText = isEn ? 'Ordering' : 'ஆர்டர்'; }
+        }
+        return `<button onclick="selectTable('${t}')" class="p-2.5 rounded-xl border-2 text-sm text-center ${colorCls} ${isSelected ? 'ring-4 ring-yellow-400' : ''}">${t}<br><span class="text-[11px]">${stText}</span></button>`;
+      }).join('');
+
+      renderMenuGrid();
+
+      const curOrd = db.orders[db.activeTable];
+      const { activeList, subTotal, disc, ro, netTotal } = computeBillAmounts(curOrd);
+      document.getElementById('currentTableLabel').textContent = db.activeTable;
+      document.getElementById('currentOrderStaff').textContent = curOrd ? curOrd.staff : '-';
+      document.getElementById('tableStatusBadge').textContent = activeList.length ? (curOrd.status || 'ordering').toUpperCase() : (isEn ? 'FREE' : 'காலி');
+
+      document.getElementById('orderItemsList').innerHTML = activeList.length
+        ? activeList.map(i => {
+            const sub = i.price * i.qty;
+            return `
+              <div class="flex items-center justify-between bg-yellow-50/70 p-2.5 rounded-xl border border-yellow-300">
+                <div>
+                  <div class="text-base font-extrabold text-amber-950">${getMenuLabel(i)}</div>
+                  <div class="text-xs font-semibold text-gray-600">₹${i.price} × ${i.qty} = <strong>₹${sub}</strong></div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button onclick="updateOrderQty(${i.id}, -1)" class="w-7 h-7 rounded-lg bg-amber-100 text-amber-950 font-extrabold">-</button>
+                  <span class="px-1.5 font-extrabold">${i.qty}</span>
+                  <button onclick="updateOrderQty(${i.id}, 1)" class="w-7 h-7 rounded-lg gold-btn font-extrabold">+</button>
+                  <button onclick="cancelOrderItem(${i.id})" class="px-2 h-7 rounded-lg bg-rose-100 text-rose-800 font-extrabold text-xs">Cancel</button>
+                </div>
+              </div>
+            `;
+          }).join('')
+        : `<p class="text-center text-gray-400 py-8 text-sm">${isEn ? 'Tap menu items to take order' : 'மெனுவில் கிளிக் செய்து ஆர்டர் எடுக்கவும்'}</p>`;
+
+      document.getElementById('orderSubTotal').textContent = subTotal.toFixed(2);
+      document.getElementById('orderDiscShow').textContent = disc.toFixed(2);
+      document.getElementById('orderRoShow').textContent = ro.toFixed(2);
+      document.getElementById('orderTotal').textContent = netTotal.toFixed(2);
+
+      document.getElementById('settledBillsReprintList').innerHTML = db.settledBills.length
+        ? db.settledBills.slice().reverse().map(b => `
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-yellow-50/70 px-3 py-2 rounded-xl border border-yellow-300">
+              <span><strong>Bill #${b.billNo}</strong> | 📅 ${b.date} ${b.time} | <strong>${b.table}</strong> (${b.mode}) — <strong>₹${b.netTotal.toFixed(2)}</strong></span>
+              <button onclick="reprintSettledBill(${b.billNo})" class="gold-btn font-extrabold px-3 py-1 rounded-lg text-xs">🖨️ Reprint Copy</button>
+            </div>
+          `).join('')
+        : `<p class="text-gray-400 text-xs">முடிந்த பில்கள் இன்னும் இல்லை.</p>`;
+
+      document.getElementById('cancelledItemsReport').innerHTML = db.cancelledItems.length
+        ? db.cancelledItems.slice().reverse().map(c => `
+            <div class="flex justify-between bg-white px-3 py-1.5 rounded-xl border border-yellow-300">
+              <span>📅 <strong>${c.date || dtStr}</strong> | <strong>${c.table}</strong> (${c.staff}) — <strong>${isEn ? c.eng : c.tam}</strong> × ${c.qty} <small class="text-gray-500">[${c.time}]</small></span>
+              <span class="font-bold text-rose-700">Cancelled (₹${(c.price * c.qty).toFixed(2)})</span>
+            </div>
+          `).join('')
+        : `<p class="text-gray-500 text-xs">கேன்சல் செய்யப்பட்ட ஐட்டங்கள் எதுவும் இல்லை.</p>`;
+
+      const activeEntries = Object.entries(db.orders)
+        .map(([t, v]) => [t, { ...v, items: (v.items || []).filter(i => !i.cancelled) }])
+        .filter(([_, v]) => v.items.length);
+
+      document.getElementById('kitchenTvGrid').innerHTML = activeEntries.length
+        ? activeEntries.map(([t, v]) => `<div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 space-y-2 shadow-sm"><div class="flex justify-between items-center border-b border-yellow-300 pb-2"><span class="text-2xl font-extrabold text-amber-950">${t}</span><span class="text-xs gold-btn font-extrabold px-2.5 py-1 rounded-full">${v.staff}</span></div><ul class="space-y-1.5 text-lg text-amber-950">${v.items.map(i => `<li class="flex justify-between font-bold"><span>${getMenuLabel(i)}</span><span class="text-amber-700">× ${i.qty}</span></li>`).join('')}</ul></div>`).join('')
+        : `<p class="col-span-3 text-center text-amber-900/70 py-12 text-xl">${isEn ? 'No active kitchen orders' : 'தற்போது கிச்சனில் புதிய ஆர்டர்கள் இல்லை'}</p>`;
+
+      const pSel = document.getElementById('purPartySelect');
+      const curP = pSel.value;
+      pSel.innerHTML = db.parties.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+      if (curP) pSel.value = curP;
+
+      document.getElementById('partyMasterList').innerHTML = db.parties.map(p => `
+        <div class="p-2 rounded-xl bg-yellow-50 border border-yellow-200">
+          <div class="font-extrabold text-amber-950">${p.name}</div>
+          <div class="text-gray-600">${p.addr || ''} ${p.phone ? `| 📞 ${p.phone}` : ''} ${p.gst ? `| GST: ${p.gst}` : ''} ${p.acc ? `| A/c: ${p.acc}` : ''}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('draftItemsBody').innerHTML = db.draftPurItems.length
+        ? db.draftPurItems.map((it, idx) => `<tr class="border-b"><td class="p-2">${it.date || dtStr}</td><td class="p-2 font-bold">${getMenuLabel(it)}</td><td class="p-2">${it.qty}</td><td class="p-2">₹${it.rate}</td><td class="p-2">₹${it.cgst.toFixed(2)}</td><td class="p-2">₹${it.sgst.toFixed(2)}</td><td class="p-2">₹${it.igst.toFixed(2)}</td><td class="p-2 font-extrabold">₹${it.total.toFixed(2)}</td><td class="p-2 flex gap-1"><button onclick="modifyDraftItem(${idx})" class="text-amber-800 font-bold">Edit</button><button onclick="removeDraftItem(${idx})" class="text-rose-700 font-bold">×</button></td></tr>`).join('')
+        : `<tr><td colspan="9" class="p-3 text-center text-gray-400">ஐட்டம் சேர்க்கவும்</td></tr>`;
+
+      document.getElementById('savedBillsList').innerHTML = db.savedPurBills.length
+        ? db.savedPurBills.slice().reverse().map(b => `
+            <div class="p-2.5 rounded-xl border border-yellow-300 bg-yellow-50/70 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div class="font-extrabold text-amber-950">📅 ${b.date} | ${b.party} — ₹${b.total.toFixed(2)}</div>
+                <div class="text-gray-500">Status: <strong>${b.paid === 'YES' ? 'PAID (FROZEN)' : 'UNPAID'}</strong></div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                ${b.jpegData ? `<button onclick="openBillZoom(${b.id})" class="gold-btn font-extrabold px-2.5 py-1 rounded-lg">🔍 JPEG</button>` : ''}
+                ${b.frozen
+                  ? `<span class="px-2.5 py-1 rounded-lg bg-emerald-200 text-emerald-950 font-extrabold">🔒 YES</span>`
+                  : `<select onchange="changeSavedBillPaid(${b.id}, this.value)" class="border rounded-lg px-2 py-1 font-bold bg-white"><option value="NO" selected>No</option><option value="YES">Yes</option></select>`}
+              </div>
+            </div>
+          `).join('')
+        : `<p class="text-gray-400 text-center py-4">பர்சேஸ் பில்கள் இல்லை</p>`;
+
+      const lCatSel = document.getElementById('ldgCat');
+      const curCat = lCatSel.value;
+      lCatSel.innerHTML = db.ledgerCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+      if (curCat) lCatSel.value = curCat;
+
+      const lPartySel = document.getElementById('ldgPartySelect');
+      const curLP = lPartySel.value;
+      const allEntities = Array.from(new Set([
+        ...db.parties.map(p => p.name),
+        ...db.employees.map(e => e.name),
+        ...db.savedPurBills.map(b => b.party)
+      ]));
+      lPartySel.innerHTML = allEntities.map(n => `<option value="${n}">${n}</option>`).join('');
+      if (curLP && allEntities.includes(curLP)) lPartySel.value = curLP;
+
+      document.getElementById('ledgerEntriesBox').innerHTML = db.ledgerEntries.length
+        ? db.ledgerEntries.slice().reverse().map(x => `<div class="p-2.5 rounded-xl border border-yellow-300 bg-white flex flex-wrap items-center justify-between gap-2"><div><div class="font-extrabold text-amber-950">📅 ${x.date} | [${x.cat}] ${x.party} — ₹${x.amt.toFixed(2)}</div><div class="text-xs text-gray-500">${x.mode} (${x.dir}) | ${x.note || ''}</div></div><div class="flex gap-1.5"><button onclick="printReceipt(${x.id})" class="gold-btn font-extrabold px-2.5 py-1 rounded-lg text-xs">🧾 Receipt</button><button onclick="modifyLedgerEntry(${x.id})" class="bg-yellow-100 text-amber-950 font-bold px-2.5 py-1 rounded-lg text-xs">Edit</button><button onclick="deleteLedgerEntry(${x.id})" class="bg-rose-100 text-rose-800 font-bold px-2.5 py-1 rounded-lg text-xs">Delete</button></div></div>`).join('')
+        : `<p class="text-gray-400 text-center py-6">லெட்ஜர் பதிவுகள் இல்லை</p>`;
+
+      document.getElementById('soldItemsReportBody').innerHTML = db.menu.map(m => {
+        const sq = db.soldItems[m.id] || 0;
+        const amt = sq * m.price;
+        const { totalUnitCost } = getDishUnitCost(m.id);
+        const itemCost = sq * totalUnitCost;
+        return `
+          <tr class="border-b">
+            <td class="p-2">${dtStr}</td>
+            <td class="p-2 font-bold text-amber-950">${getMenuLabel(m)}</td>
+            <td class="p-2 font-extrabold">${sq}</td>
+            <td class="p-2">₹${m.price.toFixed(2)}</td>
+            <td class="p-2 font-extrabold text-emerald-700">₹${amt.toFixed(2)}</td>
+            <td class="p-2 font-bold text-amber-900">₹${itemCost.toFixed(2)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const recMap = computeRecipeConsumedByStock();
+      const sKeys = Object.keys(db.stock);
+      document.getElementById('stkItemSelect').innerHTML = sKeys.map(k => `<option value="${k}">${k}</option>`).join('');
+      document.getElementById('stockTableBody').innerHTML = sKeys.map(k => {
+        const st = db.stock[k];
+        const used = recMap[k] || 0;
+        const expected = (st.opening + st.purchase) - used;
+        const plusMinus = st.closing - expected;
+        return `
+          <tr class="border-b">
+            <td class="p-2">${dtStr}</td>
+            <td class="p-2 font-bold text-amber-950">${k}</td>
+            <td class="p-2">${st.opening}</td>
+            <td class="p-2 text-emerald-700 font-bold">+${st.purchase}</td>
+            <td class="p-2 font-bold text-amber-900">-${used.toFixed(3)}</td>
+            <td class="p-2 font-bold">${expected.toFixed(3)}</td>
+            <td class="p-2 font-extrabold">${st.closing}</td>
+            <td class="p-2 font-extrabold ${plusMinus >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${plusMinus >= 0 ? '+' : ''}${plusMinus.toFixed(3)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      renderCostingSection();
+
+      document.getElementById('desigChips').innerHTML = db.designations.map((d, idx) => `
+        <span class="bg-white border border-amber-400 px-2.5 py-1 rounded-lg font-bold text-amber-950 flex items-center gap-1">
+          ${d} <button onclick="deleteDesignation(${idx})" class="text-rose-700 font-extrabold">×</button>
+        </span>
+      `).join('');
+
+      const empDesSel = document.getElementById('empDesigSel');
+      const curED = empDesSel.value;
+      empDesSel.innerHTML = db.designations.map(d => `<option value="${d}">${d}</option>`).join('');
+      if (curED && db.designations.includes(curED)) empDesSel.value = curED;
+
+      const payEmpSel = document.getElementById('payEmpSel');
+      const curPE = payEmpSel.value;
+      payEmpSel.innerHTML = db.employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+      if (curPE) payEmpSel.value = curPE;
+
+      document.getElementById('employeePayrollBody').innerHTML = db.employees.map(e => {
+        const grossEarned = (e.daysWorked || 0) * (e.dailyWage || 0);
+        const totalPaid = (e.advance || 0) + (e.midSalary || 0);
+        const balancePayable = grossEarned - totalPaid;
+        return `
+          <tr class="border-b">
+            <td class="p-2">${dtStr}</td>
+            <td class="p-2 font-bold text-amber-950">${e.name}<br><span class="text-[11px] text-amber-800">${e.desig}</span></td>
+            <td class="p-2 text-[11px]">Mob: ${e.phone || '-'}<br>ID: ${e.aadhaar || '-'}<br>Bank: ${e.bank || '-'}</td>
+            <td class="p-2">${e.daysWorked || 0}d × ₹${e.dailyWage || 0} = <strong>₹${grossEarned}</strong></td>
+            <td class="p-2 text-rose-700">Adv: ₹${e.advance || 0}<br>Paid: ₹${e.midSalary || 0}</td>
+            <td class="p-2 font-extrabold ${balancePayable >= 0 ? 'text-emerald-700' : 'text-rose-700'}">₹ ${balancePayable.toFixed(2)}</td>
+            <td class="p-2"><button onclick="deleteEmployee(${e.id})" class="text-rose-700 font-bold text-xs">Delete</button></td>
+          </tr>
+        `;
+      }).join('');
+
+      renderReportsSection();
+
+      const staffOptionsHtml = db.employees.map(e => `<option value="${e.name}">${e.name}</option>`).join('');
+      document.getElementById('userSlotAssignBody').innerHTML = USER_SLOTS.map(slot => {
+        const curAssign = db.userAssignments[slot.key] || { staffName: slot.defaultStaff, pass: slot.defaultPass };
+        return `
+          <tr class="border-b">
+            <td class="p-2 font-extrabold text-amber-950">${slot.internalLabel}</td>
+            <td class="p-2">
+              <div class="flex gap-1.5">
+                <select onchange="updateUserSlotAssignment('${slot.key}', 'staffName', this.value)" class="border rounded-lg px-2 py-1 text-xs font-bold bg-yellow-50">
+                  <option value="${curAssign.staffName}">${curAssign.staffName}</option>
+                  ${staffOptionsHtml}
+                </select>
+                <input type="text" value="${curAssign.staffName}" onchange="updateUserSlotAssignment('${slot.key}', 'staffName', this.value)" placeholder="Staff Name" class="border rounded-lg px-2 py-1 text-xs flex-1 bg-white" />
+              </div>
+            </td>
+            <td class="p-2">
+              <input type="text" value="${curAssign.pass}" onchange="updateUserSlotAssignment('${slot.key}', 'pass', this.value)" class="border rounded-lg px-2 py-1 text-xs w-28 bg-white font-mono" />
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('userPermissionMatrix').innerHTML = `
+        <table class="w-full text-xs sm:text-sm border-collapse text-left">
+          <thead>
+            <tr class="bg-yellow-100 border-b border-yellow-300">
+              <th class="p-2">${isEn ? 'Menu' : 'மெனு'}</th>
+              ${USER_SLOTS.map(s => `<th class="p-2 text-center">${db.userAssignments[s.key]?.staffName || s.defaultStaff}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${ALL_MENUS.map(m => `
+              <tr class="border-b">
+                <td class="p-2 font-bold">${isEn ? m.en : m.ta}</td>
+                ${USER_SLOTS.map(s => {
+                  const checked = (db.permissions[s.key] || []).includes(m.id) ? 'checked' : '';
+                  return `<td class="p-2 text-center"><input type="checkbox" ${checked} onchange="togglePermission('${s.key}', '${m.id}')" class="w-4 h-4 accent-amber-500 cursor-pointer" /></td>`;
+                }).join('')}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // --- CLOUD SAVE & AUTO-SYNC ---
+    const VGP_CLOUD_URL_KEY = 'VGP_WORLD_V12_CLOUD_URL';
+    const VGP_CLOUD_SECRET_KEY = 'VGP_WORLD_V12_CLOUD_SECRET';
+    let vgpCloudUrl = localStorage.getItem(VGP_CLOUD_URL_KEY) || '';
+    let vgpCloudSecret = localStorage.getItem(VGP_CLOUD_SECRET_KEY) || 'VGP_SECRET_KEY_2026';
+    let vgpIsPulling = false;
+
+    async function vgpPushCloud() {
+      if (!vgpCloudUrl || vgpIsPulling) return;
+      try {
+        await fetch(vgpCloudUrl, {
+          method: 'POST',
+          body: JSON.stringify({ key: vgpCloudSecret, data: db })
+        });
+        const st = document.getElementById('vgpCloudStatusText');
+        if (st) st.textContent = '☁️ Cloud Saved: ' + new Date().toLocaleTimeString();
+      } catch (e) {
+        const st = document.getElementById('vgpCloudStatusText');
+        if (st) st.textContent = '⚠️ Offline / Saved Locally';
+      }
+    }
+
+    async function vgpPullCloud() {
+      if (!vgpCloudUrl) return;
+      try {
+        const sep = vgpCloudUrl.includes('?') ? '&' : '?';
+        const res = await fetch(`${vgpCloudUrl}${sep}key=${encodeURIComponent(vgpCloudSecret)}`);
+        const remote = await res.json();
+        if (remote && typeof remote === 'object' && Array.isArray(remote.menu)) {
+          vgpIsPulling = true;
+          const keepRole = db.role;
+          db = { ...remote, role: keepRole };
+          localStorage.setItem('VGP_WORLD_V12', JSON.stringify(db));
+          renderAll();
+          vgpIsPulling = false;
+        }
+      } catch (e) {
+        vgpIsPulling = false;
+      }
+    }
+
+    function vgpSaveAndSyncCloud() {
+      const inp = document.getElementById('vgpCloudUrlInput');
+      const keyInp = document.getElementById('vgpCloudKeyInput');
+      vgpCloudUrl = (inp ? inp.value : '').trim();
+      vgpCloudSecret = (keyInp ? keyInp.value : '').trim() || 'VGP_SECRET_KEY_2026';
+      localStorage.setItem(VGP_CLOUD_URL_KEY, vgpCloudUrl);
+      localStorage.setItem(VGP_CLOUD_SECRET_KEY, vgpCloudSecret);
+      if (!vgpCloudUrl) {
+        document.getElementById('vgpCloudStatusText').textContent = '💾 Local Only';
+        return;
+      }
+      vgpPushCloud();
+      vgpPullCloud();
+    }
+
+    document.getElementById('vgpCloudUrlInput').value = vgpCloudUrl;
+    document.getElementById('vgpCloudKeyInput').value = vgpCloudSecret;
+    if (vgpCloudUrl) {
+      document.getElementById('vgpCloudStatusText').textContent = '☁️ Cloud Connected';
+      vgpPullCloud();
+      setInterval(vgpPullCloud, 5000);
+    }
+
+    renderLoginDropdown();
+    if (db.role && db.userAssignments[db.role]) openSession(db.role);
+    else renderAll();
+  </script>
+</body>
+</html>

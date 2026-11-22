@@ -2509,71 +2509,86 @@
         </table>
       `;
     }
+// --- CLOUD SAVE & AUTO-SYNC (RENDER + SUPABASE) ---
+const VGP_CLOUD_URL_KEY = 'VGP_WORLD_V12_CLOUD_URL';
+let vgpCloudUrl = localStorage.getItem(VGP_CLOUD_URL_KEY) || '';
+let vgpIsPulling = false;
+let vgpLastRemoteJson = '';
 
-    // --- CLOUD SAVE & AUTO-SYNC ---
-    const VGP_CLOUD_URL_KEY = 'VGP_WORLD_V12_CLOUD_URL';
-    const VGP_CLOUD_SECRET_KEY = 'VGP_WORLD_V12_CLOUD_SECRET';
-    let vgpCloudUrl = localStorage.getItem(VGP_CLOUD_URL_KEY) || '';
-    let vgpCloudSecret = localStorage.getItem(VGP_CLOUD_SECRET_KEY) || 'VGP_SECRET_KEY_2026';
-    let vgpIsPulling = false;
+function vgpNormalizeUrl(rawUrl) {
+  const u = (rawUrl || '').trim().replace(/\/+$/, '');
+  if (!u) return '';
+  return u.endsWith('/api/vgp-state') ? u : `${u}/api/vgp-state`;
+}
 
-    async function vgpPushCloud() {
-      if (!vgpCloudUrl || vgpIsPulling) return;
-      try {
-        await fetch(vgpCloudUrl, {
-          method: 'POST',
-          body: JSON.stringify({ key: vgpCloudSecret, data: db })
-        });
-        const st = document.getElementById('vgpCloudStatusText');
-        if (st) st.textContent = '☁️ Cloud Saved: ' + new Date().toLocaleTimeString();
-      } catch (e) {
-        const st = document.getElementById('vgpCloudStatusText');
-        if (st) st.textContent = '⚠️ Offline / Saved Locally';
-      }
-    }
+function vgpSetStatus(msg) {
+  const st = document.getElementById('vgpCloudStatusText');
+  if (st) st.textContent = msg;
+}
 
-    async function vgpPullCloud() {
-      if (!vgpCloudUrl) return;
-      try {
-        const sep = vgpCloudUrl.includes('?') ? '&' : '?';
-        const res = await fetch(`${vgpCloudUrl}${sep}key=${encodeURIComponent(vgpCloudSecret)}`);
-        const remote = await res.json();
-        if (remote && typeof remote === 'object' && Array.isArray(remote.menu)) {
-          vgpIsPulling = true;
-          const keepRole = db.role;
-          db = { ...remote, role: keepRole };
-          localStorage.setItem('VGP_WORLD_V12', JSON.stringify(db));
-          renderAll();
-          vgpIsPulling = false;
-        }
-      } catch (e) {
+async function vgpPushCloud() {
+  const endpoint = vgpNormalizeUrl(vgpCloudUrl);
+  if (!endpoint || vgpIsPulling) return;
+  try {
+    const serialized = JSON.stringify(db);
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: serialized
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    vgpLastRemoteJson = serialized;
+    vgpSetStatus('☁️ Cloud Saved: ' + new Date().toLocaleTimeString());
+  } catch (e) {
+    vgpSetStatus('⚠️ Offline / Saved Locally');
+  }
+}
+
+async function vgpPullCloud() {
+  const endpoint = vgpNormalizeUrl(vgpCloudUrl);
+  if (!endpoint) return;
+  try {
+    const res = await fetch(endpoint, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const remote = await res.json();
+    if (remote && typeof remote === 'object' && Array.isArray(remote.menu)) {
+      const remoteStr = JSON.stringify(remote);
+      if (remoteStr && remoteStr !== vgpLastRemoteJson && remoteStr !== JSON.stringify(db)) {
+        vgpIsPulling = true;
+        vgpLastRemoteJson = remoteStr;
+        const keepRole = db.role;
+        db = { ...remote, role: keepRole };
+        localStorage.setItem('VGP_WORLD_V12', JSON.stringify(db));
+        renderAll();
         vgpIsPulling = false;
       }
+      vgpSetStatus('☁️ Cloud Synced: ' + new Date().toLocaleTimeString());
     }
+  } catch (e) {
+    vgpIsPulling = false;
+  }
+}
 
-    function vgpSaveAndSyncCloud() {
-      const inp = document.getElementById('vgpCloudUrlInput');
-      const keyInp = document.getElementById('vgpCloudKeyInput');
-      vgpCloudUrl = (inp ? inp.value : '').trim();
-      vgpCloudSecret = (keyInp ? keyInp.value : '').trim() || 'VGP_SECRET_KEY_2026';
-      localStorage.setItem(VGP_CLOUD_URL_KEY, vgpCloudUrl);
-      localStorage.setItem(VGP_CLOUD_SECRET_KEY, vgpCloudSecret);
-      if (!vgpCloudUrl) {
-        document.getElementById('vgpCloudStatusText').textContent = '💾 Local Only';
-        return;
-      }
-      vgpPushCloud();
-      vgpPullCloud();
-    }
+function vgpSaveAndSyncCloud() {
+  const inp = document.getElementById('vgpCloudUrlInput');
+  vgpCloudUrl = vgpNormalizeUrl(inp ? inp.value : '');
+  if (inp) inp.value = vgpCloudUrl;
+  localStorage.setItem(VGP_CLOUD_URL_KEY, vgpCloudUrl);
+  if (!vgpCloudUrl) {
+    vgpSetStatus('💾 Local Only');
+    return;
+  }
+  vgpSetStatus('⏳ Syncing...');
+  vgpPushCloud().then(vgpPullCloud);
+}
 
-    document.getElementById('vgpCloudUrlInput').value = vgpCloudUrl;
-    document.getElementById('vgpCloudKeyInput').value = vgpCloudSecret;
-    if (vgpCloudUrl) {
-      document.getElementById('vgpCloudStatusText').textContent = '☁️ Cloud Connected';
-      vgpPullCloud();
-      setInterval(vgpPullCloud, 5000);
-    }
-
+const urlInpEl = document.getElementById('vgpCloudUrlInput');
+if (urlInpEl) urlInpEl.value = vgpCloudUrl;
+if (vgpCloudUrl) {
+  vgpSetStatus('☁️ Cloud Connected');
+  vgpPullCloud();
+  setInterval(vgpPullCloud, 5000);
+}
     renderLoginDropdown();
     if (db.role && db.userAssignments[db.role]) openSession(db.role);
     else renderAll();

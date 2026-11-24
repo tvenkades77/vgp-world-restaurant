@@ -7,6 +7,31 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
+    .hidden { display: none !important; }
+.flex { display: flex; }
+.grid { display: grid; }
+.max-w-7xl { max-width: 80rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.space-y-2 > * + * { margin-top: 0.5rem; }
+.space-y-3 > * + * { margin-top: 0.75rem; }
+.space-y-4 > * + * { margin-top: 1rem; }
+.space-y-5 > * + * { margin-top: 1.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.rounded-xl { border-radius: 0.75rem; }
+.rounded-2xl { border-radius: 1rem; }
+.border-2 { border-width: 2px; border-style: solid; border-color: #facc15; }
+.border-4 { border-width: 4px; border-style: solid; border-color: #facc15; }
+.bg-white { background-color: #ffffff; }
+.text-amber-950 { color: #451a03; }
+.font-bold { font-weight: 700; }
+.font-extrabold { font-weight: 800; }
     body { font-size: 16px; background-color: #ffffff; color: #1f2937; }
     .gold-banner {
       background: linear-gradient(135deg, #fef9c3 0%, #facc15 45%, #d97706 100%);
@@ -16,8 +41,18 @@
       background: linear-gradient(135deg, #fde047 0%, #eab308 55%, #ca8a04 100%);
       color: #2c1500;
       border: 1px solid #b45309;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .gold-btn:hover { filter: brightness(1.04); }
+    #navBar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      min-height: 52px;
+    }
     @page {
       size: 58mm auto;
       margin: 0mm;
@@ -57,7 +92,9 @@
       }
       .no-print { display: none !important; }
     }
+    
   </style>
+  
 </head>
 <body class="bg-white text-gray-800 min-h-screen">
 
@@ -96,37 +133,37 @@
           <h1 id="hdrCompanyName" class="text-2xl font-extrabold text-amber-950">VGP WORLD RESTAURANT</h1>
           <p id="hdrCompanyAddr" class="text-xs sm:text-sm font-bold text-amber-950">வையம்பட்டி (Vaiyampatti)</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <div class="bg-white border-2 border-amber-600 rounded-lg px-2.5 py-1 text-xs font-extrabold text-amber-950 flex items-center gap-1">
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <div class="bg-white border-2 border-amber-600 rounded-lg px-2.5 py-1 text-xs font-extrabold text-amber-950 flex items-center gap-1 shrink-0">
             <span>📅 Date:</span>
             <input id="globalDateInp" type="date" onchange="changeGlobalDate(this.value)" class="bg-transparent font-extrabold text-amber-950 outline-none" />
           </div>
-          <span id="roleBadge" class="bg-white text-amber-950 border-2 border-amber-600 font-extrabold text-xs sm:text-sm px-3 py-1.5 rounded-lg"></span>
-          <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm px-3 py-1.5 rounded-lg">Logout</button>
+          <span id="roleBadge" class="bg-white text-amber-950 border-2 border-amber-600 font-extrabold text-xs sm:text-sm px-3 py-1.5 rounded-lg whitespace-nowrap shrink-0"></span>
+          <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm px-3 py-1.5 rounded-lg whitespace-nowrap shrink-0">Logout</button>
         </div>
       </div>
 
       <!-- Language Selector Above Menu Bar -->
       <div class="bg-amber-50 border-t-2 border-amber-400 px-4 py-1.5 flex flex-wrap items-center justify-between gap-2">
         <span class="text-xs font-extrabold text-amber-950">மெனு மொழி (Menu Language):</span>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 shrink-0">
           <button id="btnLangTa" onclick="setMenuLanguage('ta')" class="gold-btn font-extrabold text-xs px-3 py-1 rounded-lg">தமிழ் (Tamil)</button>
-          <button id="btnLangEn" onclick="setMenuLanguage('en')" class="bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg">English</button>
+          <button id="btnLangEn" onclick="setMenuLanguage('en')" class="bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg whitespace-nowrap shrink-0">English</button>
         </div>
       </div>
 
       <!-- Navigation -->
-      <nav id="navBar" class="bg-yellow-100 px-4 py-2 flex flex-wrap items-center gap-2 text-sm font-bold border-t border-amber-400"></nav>
+      <nav id="navBar" class="bg-yellow-100 px-4 py-2 text-sm font-bold border-t border-amber-400"></nav>
 
       <!-- Cloud Save & Live Sync Bar -->
       <div class="bg-amber-50 border-t border-amber-300 px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-amber-950">
         <div class="flex flex-wrap items-center gap-1.5">
           <span>☁️ Cloud URL:</span>
-          <input id="vgpCloudUrlInput" type="text" placeholder="Paste Google Drive Apps Script / Render URL" class="border border-amber-500 rounded-lg px-2.5 py-1 text-xs bg-white w-56 sm:w-72 font-mono" />
-          <input id="vgpCloudKeyInput" type="password" value="VGP_SECRET_KEY_2026" placeholder="Secret Key" class="border border-amber-500 rounded-lg px-2 py-1 text-xs bg-white w-32 font-mono" />
+          <input id="vgpCloudUrlInput" type="text" placeholder="https://vgp-world-restaurant.onrender.com/api/vgp-state" class="border border-amber-500 rounded-lg px-2.5 py-1 text-xs bg-white w-56 sm:w-80 font-mono" />
           <button onclick="vgpSaveAndSyncCloud()" class="gold-btn font-extrabold px-3 py-1 rounded-lg text-xs">Save & Cloud Sync</button>
+          <button onclick="vgpPushCloud(true)" class="bg-white text-amber-950 border border-amber-600 font-extrabold px-2.5 py-1 rounded-lg text-xs whitespace-nowrap shrink-0">⬆️ Force Cloud Save</button>
         </div>
-        <span id="vgpCloudStatusText">💾 Local Only</span>
+        <span id="vgpCloudStatusText" class="whitespace-nowrap">💾 Local Only</span>
       </div>
 
       <!-- Clickable Cash Summary Strip -->
@@ -602,26 +639,27 @@
       <section id="tab-employees" class="hidden space-y-5">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <div class="lg:col-span-5 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-3">
-            <h2 class="text-lg font-extrabold text-amber-950">👷 எம்ப்ளாயி மாஸ்டர் ப்ரொபைல் & டெசிக்னேஷன்</h2>
+            <h2 class="text-lg font-extrabold text-amber-950">👷 எம்ப்ளாயி / தொழிலாளர் / மேனேஜர் மாஸ்டர் ப்ரொபைல்</h2>
 
             <div class="bg-yellow-50 p-3 rounded-xl border border-yellow-300 space-y-2">
               <label class="block text-xs font-bold text-amber-950">டெசிக்னேஷன் சேர் / நீக்கு (Designation)</label>
               <div class="flex gap-1.5">
-                <input id="newDesigInp" type="text" placeholder="Ex: Waiter / Master / Supplier" class="border rounded-xl px-2.5 py-1.5 text-xs flex-1 bg-white" />
+                <input id="newDesigInp" type="text" placeholder="Ex: Manager / Master / Supplier" class="border rounded-xl px-2.5 py-1.5 text-xs flex-1 bg-white" />
                 <button onclick="addDesignation()" class="gold-btn font-extrabold px-3 py-1.5 rounded-xl text-xs">+ Add</button>
               </div>
               <div id="desigChips" class="flex flex-wrap gap-1.5 text-xs"></div>
             </div>
 
             <div class="space-y-2">
-              <input id="empNameInp" type="text" placeholder="எம்ப்ளாயி பெயர் (Employee Name)" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 text-sm font-bold" />
+              <input id="empNameInp" type="text" placeholder="பெயர் (Employee / Worker / Manager Name)" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 text-sm font-bold" />
               <div class="grid grid-cols-2 gap-2">
                 <select id="empDesigSel" class="border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-sm font-bold bg-yellow-50"></select>
                 <input id="empDailyWageInp" type="number" placeholder="ஒரு நாள் சம்பளம் ₹ (Daily Wage)" class="border-2 border-yellow-300 rounded-xl px-3 py-2 text-sm" />
               </div>
+              <input id="empAddrInp" type="text" placeholder="முகவரி (Address)" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 text-sm" />
               <div class="grid grid-cols-2 gap-2">
                 <input id="empPhoneInp" type="text" placeholder="Mobile Number" class="border rounded-xl px-3 py-2 text-sm" />
-                <input id="empAadhaarInp" type="text" placeholder="ID / Reference Number" class="border rounded-xl px-3 py-2 text-sm" />
+                <input id="empAadhaarInp" type="text" placeholder="அடையாள எண் (ID Number)" class="border rounded-xl px-3 py-2 text-sm" />
               </div>
               <input id="empBankInp" type="text" placeholder="Bank A/c No & IFSC Details" class="w-full border rounded-xl px-3 py-2 text-sm" />
               <button onclick="saveEmployeeProfile()" class="w-full gold-btn font-extrabold py-2.5 rounded-xl text-sm shadow">+ எம்ப்ளாயி சேமி / அப்டேட்</button>
@@ -648,7 +686,7 @@
                   <tr class="bg-yellow-100 border-b border-yellow-300">
                     <th class="p-2">தேதி</th>
                     <th class="p-2">பெயர் & Designation</th>
-                    <th class="p-2">விவரம் (ID / Bank)</th>
+                    <th class="p-2">முகவரி / ID / Bank</th>
                     <th class="p-2">நாட்கள் × Wage</th>
                     <th class="p-2">Advance / Paid</th>
                     <th class="p-2">இன்று தர வேண்டியது ₹</th>
@@ -945,6 +983,7 @@
 
     const DEFAULT_DB = {
       role: null,
+      activeTab: 'pos',
       menuLang: 'ta',
       costingSub: 'master',
       activeDate: todayIso(),
@@ -979,11 +1018,11 @@
       },
       tables: Array.from({ length: 16 }, (_, i) => `T-${String(i + 1).padStart(2, '0')}`),
       activeTable: 'T-01',
-      designations: ['Supplier / Waiter', 'Master / Cook', 'Cashier', 'Manager', 'Helper'],
+      designations: ['Manager', 'Supplier / Waiter', 'Master / Cook', 'Cashier', 'Helper'],
       employees: [
-        { id: 1, name: 'ரமேஷ்', desig: 'Supplier / Waiter', phone: '9842100011', aadhaar: '', bank: '', dailyWage: 500, daysWorked: 1, advance: 0, midSalary: 0 },
-        { id: 2, name: 'சுரேஷ்', desig: 'Supplier / Waiter', phone: '9842100012', aadhaar: '', bank: '', dailyWage: 500, daysWorked: 1, advance: 0, midSalary: 0 },
-        { id: 3, name: 'கார்த்திக்', desig: 'Master / Cook', phone: '9842100013', aadhaar: '', bank: '', dailyWage: 800, daysWorked: 1, advance: 0, midSalary: 0 }
+        { id: 1, name: 'ரமேஷ்', desig: 'Supplier / Waiter', addr: 'வையம்பட்டி', phone: '9842100011', aadhaar: '', bank: '', dailyWage: 500, daysWorked: 1, advance: 0, midSalary: 0 },
+        { id: 2, name: 'சுரேஷ்', desig: 'Supplier / Waiter', addr: 'வையம்பட்டி', phone: '9842100012', aadhaar: '', bank: '', dailyWage: 500, daysWorked: 1, advance: 0, midSalary: 0 },
+        { id: 3, name: 'கார்த்திக்', desig: 'Master / Cook', addr: 'வையம்பட்டி', phone: '9842100013', aadhaar: '', bank: '', dailyWage: 800, daysWorked: 1, advance: 0, midSalary: 0 }
       ],
       menu: [
         { id: 1, eng: 'Pongal', tam: 'பொங்கல்', price: 50, img: foodCardSvg('பொங்கல்') },
@@ -1024,6 +1063,7 @@
 
     let db = JSON.parse(localStorage.getItem('VGP_WORLD_V12')) || DEFAULT_DB;
     if (!db.activeDate) db.activeDate = todayIso();
+    if (!db.activeTab) db.activeTab = 'pos';
     if (!db.companyProfile) db.companyProfile = DEFAULT_DB.companyProfile;
     if (!db.userAssignments) db.userAssignments = DEFAULT_DB.userAssignments;
     if (!db.settledBills) db.settledBills = [];
@@ -1040,7 +1080,7 @@
       localStorage.setItem('VGP_WORLD_V12', JSON.stringify(db));
       if (notifyTv) tvChannel.postMessage('update');
       renderAll();
-      vgpPushCloud();
+      vgpPushCloud(false);
     }
 
     function changeGlobalDate(val) {
@@ -1103,6 +1143,7 @@
       const expectedPass = found ? found.pass : 'admin123';
       if (expectedPass !== pass) return alert('தவறான பாஸ்வேர்ட்!');
       db.role = slotKey;
+      if (!db.activeTab) db.activeTab = 'pos';
       persist();
       openSession(slotKey);
     }
@@ -1128,17 +1169,26 @@
         : '🔒 விலை எடிட் முடக்கப்பட்டுள்ளது';
 
       const allowedIds = db.permissions[slotKey] || ['pos'];
-      const allowedMenus = ALL_MENUS.filter(m => allowedIds.includes(m.id));
-      switchTab(allowedMenus[0].id);
+      const targetTab = (db.activeTab && allowedIds.includes(db.activeTab)) ? db.activeTab : allowedIds[0];
+      applyTabVisibility(targetTab);
+      renderAll();
+    }
+
+    function applyTabVisibility(id) {
+      db.activeTab = id;
+      localStorage.setItem('VGP_WORLD_V12', JSON.stringify(db));
+      ['pos', 'kitchen', 'purchase', 'ledger', 'stock', 'costing', 'employees', 'reports', 'permissions', 'profile'].forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        if (el) el.classList.toggle('hidden', t !== id);
+      });
     }
 
     function switchTab(id) {
       const allowed = db.permissions[db.role] || ['pos'];
       if (!allowed.includes(id)) return alert('இந்த மெனுவிற்கு உங்களுக்கு அனுமதி இல்லை.');
-      ['pos', 'kitchen', 'purchase', 'ledger', 'stock', 'costing', 'employees', 'reports', 'permissions', 'profile'].forEach(t => {
-        document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== id);
-      });
+      applyTabVisibility(id);
       renderAll();
+      vgpPushCloud(false);
     }
 
     function saveCompanyProfile() {
@@ -1241,15 +1291,17 @@
       const name = document.getElementById('empNameInp').value.trim();
       const desig = document.getElementById('empDesigSel').value;
       const dailyWage = parseFloat(document.getElementById('empDailyWageInp').value) || 0;
+      const addr = document.getElementById('empAddrInp').value.trim();
       const phone = document.getElementById('empPhoneInp').value.trim();
       const aadhaar = document.getElementById('empAadhaarInp').value.trim();
       const bank = document.getElementById('empBankInp').value.trim();
-      if (!name) return alert('எம்ப்ளாயி பெயரை உள்ளிடவும்.');
+      if (!name) return alert('எம்ப்ளாயி / தொழிலாளர் / மேனேஜர் பெயரை உள்ளிடவும்.');
 
       const existing = db.employees.find(e => e.name.toLowerCase() === name.toLowerCase());
       if (existing) {
         existing.desig = desig || existing.desig;
         if (dailyWage > 0) existing.dailyWage = dailyWage;
+        if (addr) existing.addr = addr;
         if (phone) existing.phone = phone;
         if (aadhaar) existing.aadhaar = aadhaar;
         if (bank) existing.bank = bank;
@@ -1258,6 +1310,7 @@
           id: Date.now(),
           name,
           desig: desig || 'Supplier / Waiter',
+          addr,
           phone,
           aadhaar,
           bank,
@@ -1270,6 +1323,7 @@
 
       document.getElementById('empNameInp').value = '';
       document.getElementById('empDailyWageInp').value = '';
+      document.getElementById('empAddrInp').value = '';
       document.getElementById('empPhoneInp').value = '';
       document.getElementById('empAadhaarInp').value = '';
       document.getElementById('empBankInp').value = '';
@@ -1284,12 +1338,13 @@
     function quickAddEmployeeFromPos() {
       const name = prompt('புதிய எம்ப்ளாயி / வெயிட்டர் பெயர்:');
       if (!name || !name.trim()) return;
-      const desig = prompt('Designation (Supplier / Waiter / Master):', db.designations[0] || 'Supplier / Waiter');
+      const desig = prompt('Designation (Manager / Supplier / Waiter / Master):', db.designations[0] || 'Supplier / Waiter');
       const wage = parseFloat(prompt('ஒரு நாள் சம்பளம் (₹):', '500')) || 500;
       db.employees.push({
         id: Date.now(),
         name: name.trim(),
         desig: (desig || 'Supplier / Waiter').trim(),
+        addr: '',
         phone: '',
         aadhaar: '',
         bank: '',
@@ -1876,6 +1931,7 @@
       db.dishOverheads[menuId] = { power, labour, maint };
       localStorage.setItem('VGP_WORLD_V12', JSON.stringify(db));
       renderMasterCostingSheet(true);
+      vgpPushCloud(false);
     }
 
     function createNewRawMaterialQuick() {
@@ -1944,7 +2000,7 @@
           const earned = (e.daysWorked || 0) * (e.dailyWage || 0);
           const paid = (e.advance || 0) + (e.midSalary || 0);
           const due = earned - paid;
-          return `<div class="flex justify-between bg-white px-3 py-1.5 rounded-xl border border-yellow-300"><span><strong>${e.name}</strong> — Earned: ₹${earned} | Paid: ₹${paid}</span><strong class="${due >= 0 ? 'text-emerald-700' : 'text-rose-700'}">Due: ₹${due.toFixed(2)}</strong></div>`;
+          return `<div class="flex justify-between bg-white px-3 py-1.5 rounded-xl border border-yellow-300"><span><strong>${e.name}</strong> (${e.desig}) — Earned: ₹${earned} | Paid: ₹${paid}</span><strong class="${due >= 0 ? 'text-emerald-700' : 'text-rose-700'}">Due: ₹${due.toFixed(2)}</strong></div>`;
         }).join('');
       } else if (type === 'CANCELLED') {
         const rows = db.cancelledItems.filter(c => isDateInRange(c.date, fromIso, toIso));
@@ -2236,20 +2292,23 @@
 
       document.getElementById('btnLangTa').className = !isEn
         ? 'gold-btn font-extrabold text-xs px-3 py-1 rounded-lg'
-        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg';
+        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg whitespace-nowrap shrink-0';
       document.getElementById('btnLangEn').className = isEn
         ? 'gold-btn font-extrabold text-xs px-3 py-1 rounded-lg'
-        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg';
+        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg whitespace-nowrap shrink-0';
 
       const allowedIds = db.permissions[db.role] || ['pos'];
       const leftMenus = ALL_MENUS.filter(m => allowedIds.includes(m.id) && !m.rightSide);
       const rightMenus = ALL_MENUS.filter(m => allowedIds.includes(m.id) && m.rightSide);
       document.getElementById('navBar').innerHTML = `
-        <div class="flex flex-wrap gap-2">
-          ${leftMenus.map(it => `<button onclick="switchTab('${it.id}')" class="gold-btn px-3.5 py-2 rounded-xl text-sm font-extrabold">${isEn ? it.en : it.ta}</button>`).join('')}
+        <div class="flex flex-wrap items-center gap-2">
+          ${leftMenus.map(it => {
+            const activeCls = db.activeTab === it.id ? 'ring-2 ring-amber-950 brightness-105' : '';
+            return `<button onclick="switchTab('${it.id}')" class="gold-btn px-3.5 py-2 rounded-xl text-sm font-extrabold ${activeCls}">${isEn ? it.en : it.ta}</button>`;
+          }).join('')}
         </div>
-        <div class="ml-auto flex flex-wrap gap-2">
-          ${rightMenus.map(it => `<button onclick="switchTab('${it.id}')" class="bg-white text-amber-950 border-2 border-amber-600 hover:bg-yellow-50 px-3.5 py-2 rounded-xl text-sm font-extrabold">${isEn ? it.en : it.ta}</button>`).join('')}
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          ${rightMenus.map(it => `<button onclick="switchTab('${it.id}')" class="bg-white text-amber-950 border-2 border-amber-600 hover:bg-yellow-50 px-3.5 py-2 rounded-xl text-sm font-extrabold whitespace-nowrap shrink-0">${isEn ? it.en : it.ta}</button>`).join('')}
         </div>
       `;
 
@@ -2454,7 +2513,7 @@
           <tr class="border-b">
             <td class="p-2">${dtStr}</td>
             <td class="p-2 font-bold text-amber-950">${e.name}<br><span class="text-[11px] text-amber-800">${e.desig}</span></td>
-            <td class="p-2 text-[11px]">Mob: ${e.phone || '-'}<br>ID: ${e.aadhaar || '-'}<br>Bank: ${e.bank || '-'}</td>
+            <td class="p-2 text-[11px]">Addr: ${e.addr || '-'}<br>Mob: ${e.phone || '-'}<br>ID: ${e.aadhaar || '-'}<br>Bank: ${e.bank || '-'}</td>
             <td class="p-2">${e.daysWorked || 0}d × ₹${e.dailyWage || 0} = <strong>₹${grossEarned}</strong></td>
             <td class="p-2 text-rose-700">Adv: ₹${e.advance || 0}<br>Paid: ₹${e.midSalary || 0}</td>
             <td class="p-2 font-extrabold ${balancePayable >= 0 ? 'text-emerald-700' : 'text-rose-700'}">₹ ${balancePayable.toFixed(2)}</td>
@@ -2509,86 +2568,97 @@
         </table>
       `;
     }
-// --- CLOUD SAVE & AUTO-SYNC (RENDER + SUPABASE) ---
-const VGP_CLOUD_URL_KEY = 'VGP_WORLD_V12_CLOUD_URL';
-let vgpCloudUrl = localStorage.getItem(VGP_CLOUD_URL_KEY) || '';
-let vgpIsPulling = false;
-let vgpLastRemoteJson = '';
 
-function vgpNormalizeUrl(rawUrl) {
-  const u = (rawUrl || '').trim().replace(/\/+$/, '');
-  if (!u) return '';
-  return u.endsWith('/api/vgp-state') ? u : `${u}/api/vgp-state`;
-}
+    // --- CLOUD SAVE & AUTO-SYNC (RENDER + SUPABASE) ---
+    const VGP_CLOUD_URL_KEY = 'VGP_WORLD_V12_CLOUD_URL';
+    let vgpCloudUrl = localStorage.getItem(VGP_CLOUD_URL_KEY) || '';
+    if (!vgpCloudUrl && window.location.protocol.startsWith('http')) {
+      vgpCloudUrl = `${window.location.origin}/api/vgp-state`;
+      localStorage.setItem(VGP_CLOUD_URL_KEY, vgpCloudUrl);
+    }
 
-function vgpSetStatus(msg) {
-  const st = document.getElementById('vgpCloudStatusText');
-  if (st) st.textContent = msg;
-}
+    let vgpIsPulling = false;
+    let vgpLastRemoteJson = '';
 
-async function vgpPushCloud() {
-  const endpoint = vgpNormalizeUrl(vgpCloudUrl);
-  if (!endpoint || vgpIsPulling) return;
-  try {
-    const serialized = JSON.stringify(db);
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: serialized
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    vgpLastRemoteJson = serialized;
-    vgpSetStatus('☁️ Cloud Saved: ' + new Date().toLocaleTimeString());
-  } catch (e) {
-    vgpSetStatus('⚠️ Offline / Saved Locally');
-  }
-}
+    function vgpNormalizeUrl(rawUrl) {
+      const u = (rawUrl || '').trim().replace(/\/+$/, '');
+      if (!u) return '';
+      return u.endsWith('/api/vgp-state') ? u : `${u}/api/vgp-state`;
+    }
 
-async function vgpPullCloud() {
-  const endpoint = vgpNormalizeUrl(vgpCloudUrl);
-  if (!endpoint) return;
-  try {
-    const res = await fetch(endpoint, { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const remote = await res.json();
-    if (remote && typeof remote === 'object' && Array.isArray(remote.menu)) {
-      const remoteStr = JSON.stringify(remote);
-      if (remoteStr && remoteStr !== vgpLastRemoteJson && remoteStr !== JSON.stringify(db)) {
-        vgpIsPulling = true;
-        vgpLastRemoteJson = remoteStr;
-        const keepRole = db.role;
-        db = { ...remote, role: keepRole };
-        localStorage.setItem('VGP_WORLD_V12', JSON.stringify(db));
-        renderAll();
+    function vgpSetStatus(msg) {
+      const st = document.getElementById('vgpCloudStatusText');
+      if (st) st.textContent = msg;
+    }
+
+    async function vgpPushCloud(showAlert = false) {
+      const endpoint = vgpNormalizeUrl(vgpCloudUrl);
+      if (!endpoint || vgpIsPulling) return;
+      try {
+        const serialized = JSON.stringify(db);
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: serialized
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        vgpLastRemoteJson = serialized;
+        vgpSetStatus('☁️ Cloud Saved: ' + new Date().toLocaleTimeString());
+        if (showAlert) alert('அனைத்து டேட்டாக்களும் கிளவுட் டேட்டாபேஸில் சேமிக்கப்பட்டன!');
+      } catch (e) {
+        vgpSetStatus('⚠️ Offline / Saved Locally');
+        if (showAlert) alert('கிளவுட் சர்வர் இணைக்கப்படவில்லை; Local-இல் சேமிக்கப்பட்டுள்ளது.');
+      }
+    }
+
+    async function vgpPullCloud() {
+      const endpoint = vgpNormalizeUrl(vgpCloudUrl);
+      if (!endpoint) return;
+      try {
+        const res = await fetch(endpoint, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const remote = await res.json();
+        if (remote && typeof remote === 'object' && Array.isArray(remote.menu)) {
+          const remoteStr = JSON.stringify(remote);
+          if (remoteStr && remoteStr !== vgpLastRemoteJson && remoteStr !== JSON.stringify(db)) {
+            vgpIsPulling = true;
+            vgpLastRemoteJson = remoteStr;
+            const keepRole = db.role;
+            const keepTab = db.activeTab;
+            db = { ...remote, role: keepRole || remote.role || null, activeTab: keepTab || remote.activeTab || 'pos' };
+            localStorage.setItem('VGP_WORLD_V12', JSON.stringify(db));
+            if (db.role) applyTabVisibility(db.activeTab);
+            renderAll();
+            vgpIsPulling = false;
+          }
+          vgpSetStatus('☁️ Cloud Synced: ' + new Date().toLocaleTimeString());
+        }
+      } catch (e) {
         vgpIsPulling = false;
       }
-      vgpSetStatus('☁️ Cloud Synced: ' + new Date().toLocaleTimeString());
     }
-  } catch (e) {
-    vgpIsPulling = false;
-  }
-}
 
-function vgpSaveAndSyncCloud() {
-  const inp = document.getElementById('vgpCloudUrlInput');
-  vgpCloudUrl = vgpNormalizeUrl(inp ? inp.value : '');
-  if (inp) inp.value = vgpCloudUrl;
-  localStorage.setItem(VGP_CLOUD_URL_KEY, vgpCloudUrl);
-  if (!vgpCloudUrl) {
-    vgpSetStatus('💾 Local Only');
-    return;
-  }
-  vgpSetStatus('⏳ Syncing...');
-  vgpPushCloud().then(vgpPullCloud);
-}
+    function vgpSaveAndSyncCloud() {
+      const inp = document.getElementById('vgpCloudUrlInput');
+      vgpCloudUrl = vgpNormalizeUrl(inp ? inp.value : '');
+      if (inp) inp.value = vgpCloudUrl;
+      localStorage.setItem(VGP_CLOUD_URL_KEY, vgpCloudUrl);
+      if (!vgpCloudUrl) {
+        vgpSetStatus('💾 Local Only');
+        return;
+      }
+      vgpSetStatus('⏳ Syncing...');
+      vgpPushCloud(true).then(vgpPullCloud);
+    }
 
-const urlInpEl = document.getElementById('vgpCloudUrlInput');
-if (urlInpEl) urlInpEl.value = vgpCloudUrl;
-if (vgpCloudUrl) {
-  vgpSetStatus('☁️ Cloud Connected');
-  vgpPullCloud();
-  setInterval(vgpPullCloud, 5000);
-}
+    const urlInpEl = document.getElementById('vgpCloudUrlInput');
+    if (urlInpEl) urlInpEl.value = vgpCloudUrl;
+    if (vgpCloudUrl) {
+      vgpSetStatus('☁️ Cloud Connected');
+      vgpPullCloud();
+      setInterval(vgpPullCloud, 5000);
+    }
+
     renderLoginDropdown();
     if (db.role && db.userAssignments[db.role]) openSession(db.role);
     else renderAll();

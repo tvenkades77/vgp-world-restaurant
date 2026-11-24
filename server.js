@@ -17,6 +17,7 @@ const pool = process.env.DATABASE_URL
   : null;
 
 let localFallbackDb = {};
+let dbReady = false;
 
 async function initDb() {
   if (!pool) return;
@@ -32,16 +33,33 @@ async function initDb() {
     VALUES ('main_store', '{}'::jsonb)
     ON CONFLICT (id) DO NOTHING;
   `);
+  dbReady = true;
 }
-initDb().catch(err => console.error('DB Init Warning:', err.message));
+
+initDb().catch(err => {
+  console.error('DB Init Warning:', err.message);
+});
+
+app.get('/api/vgp-health', async (req, res) => {
+  try {
+    if (pool) {
+      await pool.query('SELECT 1');
+      return res.json({ ok: true, mode: 'supabase_postgres', dbReady });
+    }
+    res.json({ ok: true, mode: 'local_memory', dbReady: false });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
 
 app.get('/api/vgp-state', async (req, res) => {
   try {
     if (pool) {
+      if (!dbReady) await initDb();
       const { rows } = await pool.query(
         "SELECT payload FROM vgp_restaurant_cloud_db WHERE id = 'main_store'"
       );
-      return res.json(rows[0] ? rows[0].payload : {});
+      return res.json(rows[0] && rows[0].payload ? rows[0].payload : {});
     }
     res.json(localFallbackDb);
   } catch (err) {
@@ -51,9 +69,10 @@ app.get('/api/vgp-state', async (req, res) => {
 
 app.post('/api/vgp-state', async (req, res) => {
   try {
-    const body = req.body || {};
+    const body = req.body && typeof req.body === 'object' ? req.body : {};
     localFallbackDb = body;
     if (pool) {
+      if (!dbReady) await initDb();
       await pool.query(
         `INSERT INTO vgp_restaurant_cloud_db (id, payload, updated_at)
          VALUES ('main_store', $1::jsonb, NOW())
@@ -68,7 +87,7 @@ app.post('/api/vgp-state', async (req, res) => {
   }
 });
 
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 

@@ -7,7 +7,168 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
-    body { font-size: 16px; background-color: #ffffff; color: #1f2937; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 15px;
+      background-color: #ffffff;
+      color: #1f2937;
+      overflow-x: hidden;
+    }
+    .hidden { display: none !important; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .flex-wrap { flex-wrap: wrap; }
+    .flex-1 { flex: 1 1 0%; }
+    .items-center { align-items: center; }
+    .items-end { align-items: flex-end; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .shrink-0 { flex-shrink: 0; }
+    .min-h-screen { min-height: 100vh; }
+    .w-full { width: 100%; }
+    .max-w-md { max-width: 28rem; }
+    .max-w-2xl { max-width: 42rem; }
+    .max-w-3xl { max-width: 48rem; }
+    .max-w-7xl { max-width: 1280px; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .ml-auto { margin-left: auto; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mb-0\.5 { margin-bottom: 0.125rem; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .pb-2 { padding-bottom: 0.5rem; }
+    .pb-2\.5 { padding-bottom: 0.625rem; }
+    .pb-3 { padding-bottom: 0.75rem; }
+    .pt-3 { padding-top: 0.75rem; }
+    .p-2 { padding: 0.5rem; }
+    .p-2\.5 { padding: 0.625rem; }
+    .p-3 { padding: 0.75rem; }
+    .p-3\.5 { padding: 0.875rem; }
+    .p-4 { padding: 1rem; }
+    .p-5 { padding: 1.25rem; }
+    .p-6 { padding: 1.5rem; }
+    .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .px-3\.5 { padding-left: 0.875rem; padding-right: 0.875rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+    .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    .gap-1 { gap: 0.25rem; }
+    .gap-1\.5 { gap: 0.375rem; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-2\.5 { gap: 0.625rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-4 { gap: 1rem; }
+    .space-y-1 > * + * { margin-top: 0.25rem; }
+    .space-y-1\.5 > * + * { margin-top: 0.375rem; }
+    .space-y-2 > * + * { margin-top: 0.5rem; }
+    .space-y-2\.5 > * + * { margin-top: 0.625rem; }
+    .space-y-3 > * + * { margin-top: 0.75rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .space-y-5 > * + * { margin-top: 1.25rem; }
+
+    /* Fixed Grid Layouts (Never Break Offline) */
+    .grid { display: grid; }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    @media (min-width: 640px) {
+      .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .sm\:grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .sm\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    }
+    @media (min-width: 768px) {
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (min-width: 1024px) {
+      .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .lg\:col-span-5 { grid-column: span 5 / span 5; }
+      .lg\:col-span-7 { grid-column: span 7 / span 7; }
+    }
+
+    /* Typography & Colors */
+    .text-left { text-align: left; }
+    .text-center { text-align: center; }
+    .text-xs { font-size: 0.78rem; line-height: 1.1rem; }
+    .text-sm { font-size: 0.88rem; line-height: 1.25rem; }
+    .text-base { font-size: 1rem; line-height: 1.4rem; }
+    .text-lg { font-size: 1.125rem; line-height: 1.5rem; }
+    .text-xl { font-size: 1.25rem; line-height: 1.6rem; }
+    .text-2xl { font-size: 1.5rem; line-height: 1.9rem; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .underline { text-decoration: underline; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-2xl { border-radius: 1rem; }
+    .rounded-full { border-radius: 9999px; }
+    .border { border: 1px solid #facc15; }
+    .border-2 { border: 2px solid #facc15; }
+    .border-4 { border: 4px solid #facc15; }
+    .border-b { border-bottom: 1px solid #fde047; }
+    .border-b-2 { border-bottom: 2px solid #facc15; }
+    .border-b-4 { border-bottom: 4px solid #d97706; }
+    .border-t { border-top: 1px solid #f59e0b; }
+    .border-t-2 { border-top: 2px solid #f59e0b; }
+    .border-amber-500 { border-color: #f59e0b; }
+    .border-amber-600 { border-color: #d97706; }
+    .border-yellow-300 { border-color: #fde047; }
+    .border-yellow-400 { border-color: #facc15; }
+    .bg-white { background-color: #ffffff; }
+    .bg-yellow-50 { background-color: #fefce8; }
+    .bg-yellow-100 { background-color: #fef9c3; }
+    .bg-yellow-200 { background-color: #fef08a; }
+    .bg-amber-50 { background-color: #fffbeb; }
+    .bg-amber-100 { background-color: #fef3c7; }
+    .bg-sky-200 { background-color: #bae6fd; }
+    .bg-amber-300 { background-color: #fcd34d; }
+    .bg-emerald-300 { background-color: #6ee7b7; }
+    .bg-emerald-600 { background-color: #059669; }
+    .bg-rose-100 { background-color: #ffe4e6; }
+    .bg-rose-600 { background-color: #e11d48; }
+    .text-white { color: #ffffff; }
+    .text-gray-500 { color: #6b7280; }
+    .text-gray-600 { color: #4b5563; }
+    .text-gray-700 { color: #374151; }
+    .text-gray-800 { color: #1f2937; }
+    .text-gray-900 { color: #111827; }
+    .text-amber-900 { color: #78350f; }
+    .text-amber-950 { color: #451a03; }
+    .text-emerald-700 { color: #047857; }
+    .text-emerald-800 { color: #065f46; }
+    .text-rose-700 { color: #be123c; }
+    .text-rose-800 { color: #9f1239; }
+    .shadow, .shadow-sm, .shadow-md, .shadow-xl { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
+    .overflow-x-auto { overflow-x: auto; }
+    .overflow-y-auto { overflow-y: auto; }
+    .max-h-44 { max-height: 11rem; }
+    .max-h-48 { max-height: 12rem; }
+    .max-h-52 { max-height: 13rem; }
+    .max-h-56 { max-height: 14rem; }
+    .max-h-60 { max-height: 15rem; }
+    .max-h-72 { max-height: 18rem; }
+    .max-h-96 { max-height: 24rem; }
+    .max-h-\[540px\] { max-height: 540px; }
+    .h-24 { height: 6rem; }
+    .object-cover { object-fit: cover; }
+    .cursor-pointer { cursor: pointer; }
+    button { cursor: pointer; font-family: inherit; }
+    input, select, textarea { font-family: inherit; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { vertical-align: middle; }
+
     .gold-banner {
       background: linear-gradient(135deg, #fef9c3 0%, #facc15 45%, #d97706 100%);
       color: #3b1d00;
@@ -18,16 +179,61 @@
       border: 1px solid #b45309;
       white-space: nowrap;
       flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
     }
     .gold-btn:hover { filter: brightness(1.04); }
+
+    /* Fixed Top Navigation Alignment */
     #navBar {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 0.5rem;
-      min-height: 52px;
+      gap: 8px;
+      min-height: 50px;
+      width: 100%;
     }
+    #navBarLeft {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    #navBarRight {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    /* Fixed Cash Strip Row */
+    .cash-strip-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    @media (max-width: 640px) {
+      .cash-strip-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Modals */
+    #photoModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(69, 26, 3, 0.78);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
     @page {
       size: 58mm auto;
       margin: 0mm;
@@ -67,18 +273,16 @@
       }
       .no-print { display: none !important; }
     }
-    
   </style>
-  
 </head>
 <body class="bg-white text-gray-800 min-h-screen">
 
   <!-- LOGIN SCREEN -->
-  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-amber-50 via-yellow-100 to-amber-200">
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4" style="background: linear-gradient(135deg, #fffbeb 0%, #fef9c3 50%, #fde68a 100%);">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 space-y-4 border-4 border-yellow-400">
       <div class="text-center gold-banner rounded-xl p-4 border-2 border-amber-500">
-        <h1 id="loginBrandTitle" class="text-2xl font-extrabold text-amber-950">VGP WORLD RESTAURANT</h1>
-        <p id="loginBranchAddr" class="text-sm font-bold text-amber-900 mt-1">வையம்பட்டி (Vaiyampatti)</p>
+        <h1 id="loginBrandTitle" class="text-2xl font-extrabold text-amber-950" style="margin:0;">VGP WORLD RESTAURANT</h1>
+        <p id="loginBranchAddr" class="text-sm font-bold text-amber-900 mt-1" style="margin-bottom:0;">வையம்பட்டி (Vaiyampatti)</p>
       </div>
 
       <div class="space-y-3">
@@ -105,16 +309,16 @@
     <header class="gold-banner border-b-4 border-amber-500 shadow">
       <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 id="hdrCompanyName" class="text-2xl font-extrabold text-amber-950">VGP WORLD RESTAURANT</h1>
-          <p id="hdrCompanyAddr" class="text-xs sm:text-sm font-bold text-amber-950">வையம்பட்டி (Vaiyampatti)</p>
+          <h1 id="hdrCompanyName" class="text-2xl font-extrabold text-amber-950" style="margin:0;">VGP WORLD RESTAURANT</h1>
+          <p id="hdrCompanyAddr" class="text-xs sm:text-sm font-bold text-amber-950" style="margin:2px 0 0 0;">வையம்பட்டி (Vaiyampatti)</p>
         </div>
         <div class="flex flex-wrap items-center gap-2 shrink-0">
           <div class="bg-white border-2 border-amber-600 rounded-lg px-2.5 py-1 text-xs font-extrabold text-amber-950 flex items-center gap-1 shrink-0">
             <span>📅 Date:</span>
-            <input id="globalDateInp" type="date" onchange="changeGlobalDate(this.value)" class="bg-transparent font-extrabold text-amber-950 outline-none" />
+            <input id="globalDateInp" type="date" onchange="changeGlobalDate(this.value)" class="bg-transparent font-extrabold text-amber-950" style="border:none;outline:none;" />
           </div>
-          <span id="roleBadge" class="bg-white text-amber-950 border-2 border-amber-600 font-extrabold text-xs sm:text-sm px-3 py-1.5 rounded-lg whitespace-nowrap shrink-0"></span>
-          <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm px-3 py-1.5 rounded-lg whitespace-nowrap shrink-0">Logout</button>
+          <span id="roleBadge" class="bg-white text-amber-950 border-2 border-amber-600 font-extrabold text-xs sm:text-sm px-3 py-1.5 rounded-lg shrink-0" style="white-space:nowrap;"></span>
+          <button onclick="logout()" class="bg-rose-600 text-white font-bold text-xs sm:text-sm px-3 py-1.5 rounded-lg shrink-0" style="border:none;white-space:nowrap;">Logout</button>
         </div>
       </div>
 
@@ -123,36 +327,36 @@
         <span class="text-xs font-extrabold text-amber-950">மெனு மொழி (Menu Language):</span>
         <div class="flex items-center gap-2 shrink-0">
           <button id="btnLangTa" onclick="setMenuLanguage('ta')" class="gold-btn font-extrabold text-xs px-3 py-1 rounded-lg">தமிழ் (Tamil)</button>
-          <button id="btnLangEn" onclick="setMenuLanguage('en')" class="bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg whitespace-nowrap shrink-0">English</button>
+          <button id="btnLangEn" onclick="setMenuLanguage('en')" class="bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg shrink-0" style="white-space:nowrap;">English</button>
         </div>
       </div>
 
-      <!-- Navigation -->
+      <!-- Fixed Navigation Bar -->
       <nav id="navBar" class="bg-yellow-100 px-4 py-2 text-sm font-bold border-t border-amber-400"></nav>
 
       <!-- Cloud Save & Live Sync Bar -->
       <div class="bg-amber-50 border-t border-amber-300 px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-amber-950">
         <div class="flex flex-wrap items-center gap-1.5">
           <span>☁️ Cloud URL:</span>
-          <input id="vgpCloudUrlInput" type="text" placeholder="https://vgp-world-restaurant.onrender.com/api/vgp-state" class="border border-amber-500 rounded-lg px-2.5 py-1 text-xs bg-white w-56 sm:w-80 font-mono" />
+          <input id="vgpCloudUrlInput" type="text" placeholder="https://vgp-world-restaurant.onrender.com/api/vgp-state" class="border border-amber-500 rounded-lg px-2.5 py-1 text-xs bg-white" style="width:280px;max-width:100%;" />
           <button onclick="vgpSaveAndSyncCloud()" class="gold-btn font-extrabold px-3 py-1 rounded-lg text-xs">Save & Cloud Sync</button>
-          <button onclick="vgpPushCloud(true)" class="bg-white text-amber-950 border border-amber-600 font-extrabold px-2.5 py-1 rounded-lg text-xs whitespace-nowrap shrink-0">⬆️ Force Cloud Save</button>
+          <button onclick="vgpPushCloud(true)" class="bg-white text-amber-950 border border-amber-600 font-extrabold px-2.5 py-1 rounded-lg text-xs shrink-0" style="white-space:nowrap;">⬆️ Force Cloud Save</button>
         </div>
-        <span id="vgpCloudStatusText" class="whitespace-nowrap">💾 Local Only</span>
+        <span id="vgpCloudStatusText" style="white-space:nowrap;">💾 Local Only</span>
       </div>
 
-      <!-- Clickable Cash Summary Strip -->
+      <!-- Clickable Cash Summary Strip (Always 1 Horizontal Row on Desktop) -->
       <div class="bg-white text-gray-900 border-b-2 border-yellow-400 px-4 py-2.5">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-          <button onclick="openCashDrill('IN')" class="flex items-center justify-between bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-xl px-3.5 py-2 text-left transition">
+        <div class="cash-strip-grid text-sm">
+          <button onclick="openCashDrill('IN')" class="flex items-center justify-between bg-yellow-50 border-2 border-yellow-400 rounded-xl px-3.5 py-2 text-left">
             <span class="font-bold text-amber-950">💵 பணம் உள்ளே வந்தது (Cash In)</span>
             <span id="cashInVal" class="font-extrabold text-emerald-700 text-base underline">₹ 0.00</span>
           </button>
-          <button onclick="openCashDrill('OUT')" class="flex items-center justify-between bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-xl px-3.5 py-2 text-left transition">
+          <button onclick="openCashDrill('OUT')" class="flex items-center justify-between bg-yellow-50 border-2 border-yellow-400 rounded-xl px-3.5 py-2 text-left">
             <span class="font-bold text-amber-950">💸 செலவான பணம் (Cash Out)</span>
             <span id="cashOutVal" class="font-extrabold text-rose-700 text-base underline">₹ 0.00</span>
           </button>
-          <button onclick="openCashDrill('ALL')" class="flex items-center justify-between gold-banner hover:brightness-105 border-2 border-amber-600 rounded-xl px-3.5 py-2 text-left transition">
+          <button onclick="openCashDrill('ALL')" class="flex items-center justify-between gold-banner border-2 border-amber-600 rounded-xl px-3.5 py-2 text-left">
             <span class="font-extrabold text-amber-950">🏦 கல்லா இருப்பு (Cash in Hand)</span>
             <span id="cashHandVal" class="font-extrabold text-amber-950 text-base underline">₹ 0.00</span>
           </button>
@@ -164,27 +368,27 @@
     <div id="cashDrillPanel" class="hidden max-w-7xl w-full mx-auto px-4 pt-3">
       <div class="bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4 shadow">
         <div class="flex items-center justify-between border-b border-yellow-300 pb-2 mb-2">
-          <h3 id="cashDrillTitle" class="font-extrabold text-amber-950">பணப் பரிவர்த்தனை விவரம்</h3>
-          <button onclick="document.getElementById('cashDrillPanel').classList.add('hidden')" class="text-sm font-extrabold text-rose-700">மூடு [×]</button>
+          <h3 id="cashDrillTitle" class="font-extrabold text-amber-950" style="margin:0;">பணப் பரிவர்த்தனை விவரம்</h3>
+          <button onclick="document.getElementById('cashDrillPanel').classList.add('hidden')" class="text-sm font-extrabold text-rose-700 bg-white px-2.5 py-1 rounded-lg border">மூடு [×]</button>
         </div>
         <div id="cashDrillList" class="space-y-1.5 max-h-52 overflow-y-auto text-sm"></div>
       </div>
     </div>
 
     <!-- Zoomable Bill Photo Modal -->
-    <div id="photoModal" class="hidden fixed inset-0 bg-amber-950/75 z-50 flex items-center justify-center p-4">
+    <div id="photoModal" class="hidden">
       <div class="bg-white rounded-2xl max-w-2xl w-full p-4 border-4 border-yellow-400 space-y-3">
         <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-2">
-          <h3 id="photoModalTitle" class="font-extrabold text-amber-950 text-sm sm:text-base">பில் காப்பி (JPEG Zoom)</h3>
+          <h3 id="photoModalTitle" class="font-extrabold text-amber-950 text-sm sm:text-base" style="margin:0;">பில் காப்பி (JPEG Zoom)</h3>
           <div class="flex items-center gap-2">
             <button onclick="adjustZoom(0.25)" class="gold-btn font-extrabold px-2.5 py-1 rounded-lg text-xs">🔍 + Zoom</button>
-            <button onclick="adjustZoom(-0.25)" class="bg-amber-100 text-amber-950 font-extrabold px-2.5 py-1 rounded-lg text-xs">🔍 - Zoom</button>
-            <button onclick="resetZoom()" class="bg-amber-100 text-amber-950 font-bold px-2.5 py-1 rounded-lg text-xs">100%</button>
-            <button onclick="document.getElementById('photoModal').classList.add('hidden')" class="text-rose-700 font-extrabold text-sm">மூடு [×]</button>
+            <button onclick="adjustZoom(-0.25)" class="bg-amber-100 text-amber-950 font-extrabold px-2.5 py-1 rounded-lg text-xs border">🔍 - Zoom</button>
+            <button onclick="resetZoom()" class="bg-amber-100 text-amber-950 font-bold px-2.5 py-1 rounded-lg text-xs border">100%</button>
+            <button onclick="document.getElementById('photoModal').classList.add('hidden')" class="text-rose-700 font-extrabold text-sm bg-white px-2.5 py-1 rounded-lg border">மூடு [×]</button>
           </div>
         </div>
-        <div class="overflow-auto max-h-[70vh] border rounded-xl bg-amber-50 flex items-center justify-center p-2">
-          <img id="photoModalImg" src="" alt="Bill Copy" style="transform: scale(1); transform-origin: center center; transition: transform 0.15s ease;" class="max-w-full rounded-lg" />
+        <div class="overflow-auto border rounded-xl bg-amber-50 flex items-center justify-center p-2" style="max-height:70vh;">
+          <img id="photoModalImg" src="" alt="Bill Copy" style="transform: scale(1); transform-origin: center center; transition: transform 0.15s ease; max-width: 100%;" class="rounded-lg" />
         </div>
       </div>
     </div>
@@ -196,10 +400,10 @@
         <div class="flex flex-wrap items-center justify-between gap-3 bg-yellow-50 border border-yellow-300 rounded-2xl px-4 py-2 text-xs font-extrabold text-amber-950">
           <div class="flex flex-wrap items-center gap-2">
             <span>டேபிள் ஸ்டேட்டஸ்:</span>
-            <span class="px-2.5 py-1 rounded-lg bg-sky-200 text-sky-950 border border-sky-400">🔵 ஆர்டர்</span>
-            <span class="px-2.5 py-1 rounded-lg bg-amber-300 text-amber-950 border border-amber-500">🟠 KOT & TV</span>
-            <span class="px-2.5 py-1 rounded-lg bg-emerald-300 text-emerald-950 border border-emerald-600">🟢 பணம் தர தயார்</span>
-            <span class="px-2.5 py-1 rounded-lg bg-white text-gray-700 border border-gray-300">⚪ காலி</span>
+            <span class="px-2.5 py-1 rounded-lg bg-sky-200 border">🔵 ஆர்டர்</span>
+            <span class="px-2.5 py-1 rounded-lg bg-amber-300 border">🟠 KOT & TV</span>
+            <span class="px-2.5 py-1 rounded-lg bg-emerald-300 border">🟢 பணம் தர தயார்</span>
+            <span class="px-2.5 py-1 rounded-lg bg-white text-gray-700 border">⚪ காலி</span>
           </div>
           <span>📅 Date: <strong class="active-date-text"></strong></span>
         </div>
@@ -208,13 +412,13 @@
           <div class="lg:col-span-7 space-y-4">
             <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm">
               <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <h2 class="text-lg font-extrabold text-amber-950">1. டேபிள்கள் & ஆர்டர் எடுப்பவர் (Salesperson)</h2>
+                <h2 class="text-lg font-extrabold text-amber-950" style="margin:0;">1. டேபிள்கள் & ஆர்டர் எடுப்பவர் (Salesperson)</h2>
                 <div class="flex flex-wrap items-center gap-1.5">
                   <select id="activeStaff" class="border-2 border-yellow-400 rounded-xl px-2.5 py-1.5 text-sm font-bold bg-yellow-50"></select>
                   <button onclick="quickAddEmployeeFromPos()" class="gold-btn font-extrabold px-2.5 py-1.5 rounded-xl text-xs">+ Add Employee</button>
-                  <input id="quickAddTable" type="text" placeholder="T-17" class="border rounded-xl px-2 py-1.5 text-sm w-20" />
+                  <input id="quickAddTable" type="text" placeholder="T-17" class="border rounded-xl px-2 py-1.5 text-sm" style="width:76px;" />
                   <button onclick="quickTableAction('add')" class="gold-btn font-bold px-2 py-1.5 rounded-xl text-xs">+ Table</button>
-                  <button onclick="quickTableAction('del')" class="bg-rose-100 text-rose-800 font-bold px-2 py-1.5 rounded-xl text-xs">- Table</button>
+                  <button onclick="quickTableAction('del')" class="bg-rose-100 text-rose-800 font-bold px-2 py-1.5 rounded-xl text-xs border">- Table</button>
                 </div>
               </div>
               <div id="tableGrid" class="grid grid-cols-4 sm:grid-cols-5 gap-2"></div>
@@ -222,10 +426,10 @@
 
             <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm">
               <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <h2 class="text-lg font-extrabold text-amber-950">2. மெனு ஆர்டர் பில் (படங்களுடன்)</h2>
-                <input id="menuSearch" oninput="renderMenuGrid()" type="text" placeholder="தேடு / Search..." class="border-2 border-yellow-400 rounded-xl px-3 py-1.5 text-base w-full sm:w-56" />
+                <h2 class="text-lg font-extrabold text-amber-950" style="margin:0;">2. மெனு ஆர்டர் பில் (படங்களுடன்)</h2>
+                <input id="menuSearch" oninput="renderMenuGrid()" type="text" placeholder="தேடு / Search..." class="border-2 border-yellow-400 rounded-xl px-3 py-1.5 text-base" style="width:220px;max-width:100%;" />
               </div>
-              <div id="menuGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[540px] overflow-y-auto pr-1"></div>
+              <div id="menuGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[540px] overflow-y-auto" style="padding-right:4px;"></div>
             </div>
           </div>
 
@@ -233,8 +437,8 @@
             <div>
               <div class="flex items-center justify-between border-b-2 border-yellow-300 pb-2.5 mb-3">
                 <div>
-                  <h2 class="text-xl font-extrabold text-amber-950">டேபிள்: <span id="currentTableLabel">T-01</span></h2>
-                  <p class="text-xs text-gray-600 font-semibold">📅 <span class="active-date-text"></span> | ஆர்டர் எடுப்பவர்: <span id="currentOrderStaff">-</span></p>
+                  <h2 class="text-xl font-extrabold text-amber-950" style="margin:0;">டேபிள்: <span id="currentTableLabel">T-01</span></h2>
+                  <p class="text-xs text-gray-600 font-bold" style="margin:2px 0 0 0;">📅 <span class="active-date-text"></span> | ஆர்டர் எடுப்பவர்: <span id="currentOrderStaff">-</span></p>
                 </div>
                 <span id="tableStatusBadge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-yellow-100 text-amber-950 border border-yellow-400">காலி</span>
               </div>
@@ -253,7 +457,7 @@
                 </div>
               </div>
 
-              <div class="flex justify-between text-xs text-gray-600 font-semibold">
+              <div class="flex justify-between text-xs text-gray-600 font-bold">
                 <span>Sub Total: ₹<span id="orderSubTotal">0.00</span></span>
                 <span>Disc: -₹<span id="orderDiscShow">0.00</span> | R/O: ₹<span id="orderRoShow">0.00</span></span>
               </div>
@@ -264,7 +468,7 @@
               </div>
 
               <button onclick="printKOT()" class="w-full gold-btn font-extrabold py-3 rounded-xl text-base shadow">🖨️ கிச்சன் KOT பிரிண்ட் & TV அப்டேட்</button>
-              <button onclick="markReadyToPay()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-2 rounded-xl text-sm">🟢 சாப்பிட்டு முடிந்தது — பணம் தர தயார்</button>
+              <button onclick="markReadyToPay()" class="w-full bg-emerald-600 text-white font-extrabold py-2 rounded-xl text-sm" style="border:none;">🟢 சாப்பிட்டு முடிந்தது — பணம் தர தயார்</button>
               <div class="grid grid-cols-3 gap-2">
                 <button onclick="settleBill('Cash')" class="gold-banner border-2 border-amber-600 font-extrabold py-2.5 rounded-xl text-sm">💵 Cash</button>
                 <button onclick="settleBill('UPI')" class="gold-banner border-2 border-amber-600 font-extrabold py-2.5 rounded-xl text-sm">📱 UPI</button>
@@ -277,20 +481,20 @@
         <!-- Settled Bills & Reprint Bill Copy Box -->
         <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-2">
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <h3 class="text-base font-extrabold text-amber-950">🧾 முடிந்த பில்கள் & மறுபிரிண்ட் (Settled Bills — Reprint Copy)</h3>
+            <h3 class="text-base font-extrabold text-amber-950" style="margin:0;">🧾 முடிந்த பில்கள் & மறுபிரிண்ட் (Settled Bills — Reprint Copy)</h3>
             <span class="text-xs text-gray-500">எந்த பில்லையும் மீண்டும் பிரிண்ட் அவுட் எடுக்க Reprint அழுத்தவும்</span>
           </div>
           <div id="settledBillsReprintList" class="space-y-1.5 max-h-56 overflow-y-auto text-xs sm:text-sm"></div>
         </div>
 
         <div class="bg-amber-50 border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-2">
-          <h3 class="text-base font-extrabold text-amber-950">🚫 கேன்சல் செய்யப்பட்ட ஐட்டங்கள் ரிப்போர்ட் (Cancelled Items Log)</h3>
+          <h3 class="text-base font-extrabold text-amber-950" style="margin:0;">🚫 கேன்சல் செய்யப்பட்ட ஐட்டங்கள் ரிப்போர்ட் (Cancelled Items Log)</h3>
           <div id="cancelledItemsReport" class="space-y-1 text-xs sm:text-sm"></div>
         </div>
 
         <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <h2 class="text-lg font-extrabold text-amber-950">✨ புதிய ஐட்டம் சேர் (Tanglish → தமிழ்)</h2>
+            <h2 class="text-lg font-extrabold text-amber-950" style="margin:0;">✨ புதிய ஐட்டம் சேர் (Tanglish → தமிழ்)</h2>
             <span id="priceEditNotice" class="text-xs font-bold px-3 py-1 rounded-full bg-yellow-100 text-amber-950 border border-yellow-400"></span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
@@ -305,11 +509,11 @@
 
       <!-- MENU 2: KITCHEN TV -->
       <section id="tab-kitchen" class="hidden space-y-4">
-        <div class="bg-amber-50 text-amber-950 p-5 rounded-2xl shadow-lg border-4 border-yellow-400">
+        <div class="bg-amber-50 text-amber-950 p-5 rounded-2xl shadow-sm border-4 border-yellow-400">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-yellow-300 pb-3 mb-4">
             <div>
-              <h2 class="text-2xl font-extrabold text-amber-950">📺 KITCHEN TV & KOT DISPLAY (📅 <span class="active-date-text"></span>)</h2>
-              <p class="text-sm font-semibold text-amber-900">TV-யில் CPU/Browser திறந்து முழுத் திரையில் (F11) வைக்கவும்</p>
+              <h2 class="text-2xl font-extrabold text-amber-950" style="margin:0;">📺 KITCHEN TV & KOT DISPLAY (📅 <span class="active-date-text"></span>)</h2>
+              <p class="text-sm font-bold text-amber-900" style="margin:2px 0 0 0;">TV-யில் CPU/Browser திறந்து முழுத் திரையில் (F11) வைக்கவும்</p>
             </div>
             <button onclick="window.print()" class="gold-btn font-extrabold px-4 py-2 rounded-xl text-sm">🖨️ KOT Print</button>
           </div>
@@ -321,7 +525,7 @@
       <section id="tab-purchase" class="hidden space-y-5">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <div class="lg:col-span-7 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-3">
-            <h2 class="text-lg font-extrabold text-amber-950">🧾 பர்சேஸ் பில் (📅 <span class="active-date-text"></span>)</h2>
+            <h2 class="text-lg font-extrabold text-amber-950" style="margin:0;">🧾 பர்சேஸ் பில் (📅 <span class="active-date-text"></span>)</h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-yellow-50 p-3 rounded-xl border border-yellow-300">
               <div>
@@ -344,7 +548,7 @@
               </div>
             </div>
 
-            <div class="bg-amber-50/60 p-2.5 rounded-xl border border-yellow-300 space-y-1.5">
+            <div class="bg-amber-50 p-2.5 rounded-xl border border-yellow-300 space-y-1.5">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-amber-950">OCR / பில் விவரம்:</span>
                 <button onclick="autoExtractFromBillText()" class="gold-btn font-extrabold px-3 py-1 rounded-lg text-xs">⚡ Auto-Extract</button>
@@ -379,7 +583,7 @@
             </div>
 
             <div class="overflow-x-auto">
-              <table class="w-full text-xs text-left border-collapse">
+              <table class="w-full text-xs text-left">
                 <thead>
                   <tr class="bg-yellow-100 border-b border-yellow-300">
                     <th class="p-2">தேதி</th>
@@ -400,7 +604,7 @@
 
           <div class="lg:col-span-5 space-y-4">
             <div id="newPartyCard" class="hidden bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4 space-y-2">
-              <h3 class="font-extrabold text-sm text-amber-950">+ புதிய பார்ட்டி / சப்ளையர் / கஸ்டமர் ப்ரொபைல்</h3>
+              <h3 class="font-extrabold text-sm text-amber-950" style="margin:0;">+ புதிய பார்ட்டி / சப்ளையர் / கஸ்டமர் ப்ரொபைல்</h3>
               <input id="pmName" type="text" placeholder="பெயர்" class="w-full border rounded-xl px-3 py-1.5 text-sm bg-white" />
               <input id="pmAddr" type="text" placeholder="முகவரி" class="w-full border rounded-xl px-3 py-1.5 text-sm bg-white" />
               <div class="grid grid-cols-3 gap-2">
@@ -410,17 +614,17 @@
               </div>
               <div class="flex gap-2">
                 <button onclick="saveNewParty()" class="gold-btn font-extrabold px-3 py-1.5 rounded-xl text-xs">சேமி</button>
-                <button onclick="document.getElementById('newPartyCard').classList.add('hidden')" class="bg-amber-100 text-amber-950 font-bold px-3 py-1.5 rounded-xl text-xs">ரத்து</button>
+                <button onclick="document.getElementById('newPartyCard').classList.add('hidden')" class="bg-amber-100 text-amber-950 font-bold px-3 py-1.5 rounded-xl text-xs border">ரத்து</button>
               </div>
             </div>
 
             <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-2">
-              <h3 class="font-extrabold text-base text-amber-950">🏢 மாஸ்டர் ஃபைல் (Party / Customer Profile)</h3>
+              <h3 class="font-extrabold text-base text-amber-950" style="margin:0;">🏢 மாஸ்டர் ஃபைல் (Party / Customer Profile)</h3>
               <div id="partyMasterList" class="space-y-1.5 max-h-44 overflow-y-auto text-xs"></div>
             </div>
 
             <div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-2">
-              <h3 class="font-extrabold text-base text-amber-950">📷 JPEG பில் காப்பிகள் (Zoom & Paid Freeze)</h3>
+              <h3 class="font-extrabold text-base text-amber-950" style="margin:0;">📷 JPEG பில் காப்பிகள் (Zoom & Paid Freeze)</h3>
               <div id="savedBillsList" class="space-y-2 max-h-72 overflow-y-auto text-xs"></div>
             </div>
           </div>
@@ -431,7 +635,7 @@
       <section id="tab-ledger" class="hidden space-y-4">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <div class="lg:col-span-5 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-3">
-            <h2 class="text-lg font-extrabold text-amber-950">📒 பேமெண்ட் & ரசீது (📅 <span class="active-date-text"></span>)</h2>
+            <h2 class="text-lg font-extrabold text-amber-950" style="margin:0;">📒 பேமெண்ட் & ரசீது (📅 <span class="active-date-text"></span>)</h2>
             <div class="space-y-1">
               <label class="block text-xs font-bold">லெட்ஜர் கேட்டகிரி</label>
               <div class="flex gap-1.5">
@@ -460,7 +664,7 @@
           </div>
 
           <div class="lg:col-span-7 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-2">
-            <h2 class="text-lg font-extrabold text-amber-950">லெட்ஜர் & ரசீது பட்டியல்</h2>
+            <h2 class="text-lg font-extrabold text-amber-950" style="margin:0;">லெட்ஜர் & ரசீது பட்டியல்</h2>
             <div id="ledgerEntriesBox" class="space-y-2 max-h-96 overflow-y-auto text-xs sm:text-sm"></div>
           </div>
         </div>
@@ -469,12 +673,12 @@
       <!-- MENU 5: STOCK & INVENTORY -->
       <section id="tab-stock" class="hidden space-y-5">
         <div class="bg-white border-2 border-yellow-400 rounded-2xl p-5 shadow-sm space-y-4">
-          <h2 class="text-xl font-extrabold text-amber-950">📦 ஸ்டாக் & இன்வெண்டரி (📅 <span class="active-date-text"></span>)</h2>
+          <h2 class="text-xl font-extrabold text-amber-950" style="margin:0;">📦 ஸ்டாக் & இன்வெண்டரி (📅 <span class="active-date-text"></span>)</h2>
 
           <div>
             <h3 class="text-base font-extrabold text-amber-950 mb-2">🍽️ விற்ற உணவுப் பொருட்கள் ரிப்போர்ட் (Sold Qty & Amount)</h3>
             <div class="overflow-x-auto border rounded-xl">
-              <table class="w-full text-xs sm:text-sm text-left border-collapse">
+              <table class="w-full text-xs sm:text-sm text-left">
                 <thead>
                   <tr class="bg-yellow-100 border-b border-yellow-300">
                     <th class="p-2">தேதி</th>
@@ -498,7 +702,7 @@
           </div>
 
           <div class="overflow-x-auto border rounded-xl">
-            <table class="w-full text-xs sm:text-sm text-left border-collapse">
+            <table class="w-full text-xs sm:text-sm text-left">
               <thead>
                 <tr class="bg-yellow-100 border-b border-yellow-300">
                   <th class="p-2">தேதி</th>
@@ -525,7 +729,7 @@
         </div>
 
         <div id="costingSub-master" class="bg-white border-4 border-yellow-400 rounded-2xl p-5 shadow-md space-y-4">
-          <h2 class="text-xl font-extrabold text-amber-950">📋 மாஸ்டர் காஸ்டிங் ஷீட் (📅 <span class="active-date-text"></span>)</h2>
+          <h2 class="text-xl font-extrabold text-amber-950" style="margin:0;">📋 மாஸ்டர் காஸ்டிங் ஷீட் (📅 <span class="active-date-text"></span>)</h2>
 
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-yellow-50 p-3.5 rounded-2xl border border-yellow-300">
             <div>
@@ -549,7 +753,7 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-5 gap-2.5 items-end bg-amber-50/70 p-3 rounded-xl border border-yellow-300">
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-2.5 items-end bg-amber-50 p-3 rounded-xl border border-yellow-300">
             <div>
               <label class="block text-xs font-bold mb-1">துணைப் பொருள்</label>
               <select id="rcpSuppStockItem" class="w-full border-2 border-yellow-300 rounded-xl px-2.5 py-2 text-sm font-bold bg-white"></select>
@@ -578,7 +782,7 @@
           </div>
 
           <div class="overflow-x-auto border rounded-xl">
-            <table class="w-full text-sm text-left border-collapse">
+            <table class="w-full text-sm text-left">
               <thead>
                 <tr class="bg-yellow-100 border-b border-yellow-300">
                   <th class="p-2.5">பொருள் (Primary / Supporting)</th>
@@ -594,17 +798,17 @@
         </div>
 
         <div id="costingSub-reports" class="hidden bg-white border-4 border-yellow-400 rounded-2xl p-5 shadow-md space-y-5">
-          <h2 class="text-xl font-extrabold text-amber-950">📊 காஸ்டிங் (📅 <span class="active-date-text"></span>)</h2>
+          <h2 class="text-xl font-extrabold text-amber-950" style="margin:0;">📊 காஸ்டிங் (📅 <span class="active-date-text"></span>)</h2>
           <div class="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-4 space-y-2">
-            <h3 class="text-base font-extrabold text-amber-950">1. விற்பனை அடிப்படையிலான ரிப்போர்ட்</h3>
+            <h3 class="text-base font-extrabold text-amber-950" style="margin:0;">1. விற்பனை அடிப்படையிலான ரிப்போர்ட்</h3>
             <div id="repSalesVsCost" class="text-sm font-bold text-gray-800"></div>
           </div>
           <div class="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-4 space-y-2">
-            <h3 class="text-base font-extrabold text-amber-950">2. மூலப்பொருள் கன்சம்ப்ஷன் vs பிசிகல் ஸ்டாக்</h3>
+            <h3 class="text-base font-extrabold text-amber-950" style="margin:0;">2. மூலப்பொருள் கன்சம்ப்ஷன் vs பிசிகல் ஸ்டாக்</h3>
             <div id="repStockVsPhysical" class="text-xs sm:text-sm space-y-1"></div>
           </div>
           <div class="gold-banner border-2 border-amber-600 rounded-2xl p-4 space-y-1">
-            <h3 class="text-base font-extrabold text-amber-950">3. ஒருங்கிணைந்த நிகர லாப & இருப்பு சுருக்க ரிப்போர்ட்</h3>
+            <h3 class="text-base font-extrabold text-amber-950" style="margin:0;">3. ஒருங்கிணைந்த நிகர லாப & இருப்பு சுருக்க ரிப்போர்ட்</h3>
             <div id="repCombinedSummary" class="text-base font-extrabold text-amber-950"></div>
           </div>
         </div>
@@ -614,7 +818,7 @@
       <section id="tab-employees" class="hidden space-y-5">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <div class="lg:col-span-5 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-3">
-            <h2 class="text-lg font-extrabold text-amber-950">👷 எம்ப்ளாயி / தொழிலாளர் / மேனேஜர் மாஸ்டர் ப்ரொபைல்</h2>
+            <h2 class="text-lg font-extrabold text-amber-950" style="margin:0;">👷 எம்ப்ளாயி / தொழிலாளர் / மேனேஜர் மாஸ்டர் ப்ரொபைல்</h2>
 
             <div class="bg-yellow-50 p-3 rounded-xl border border-yellow-300 space-y-2">
               <label class="block text-xs font-bold text-amber-950">டெசிக்னேஷன் சேர் / நீக்கு (Designation)</label>
@@ -642,7 +846,7 @@
           </div>
 
           <div class="lg:col-span-7 bg-white border-2 border-yellow-400 rounded-2xl p-4 shadow-sm space-y-3">
-            <h2 class="text-lg font-extrabold text-amber-950">💰 எம்ப்ளாயி பேரோல் & வருகை (📅 <span class="active-date-text"></span>)</h2>
+            <h2 class="text-lg font-extrabold text-amber-950" style="margin:0;">💰 எம்ப்ளாயி பேரோல் & வருகை (📅 <span class="active-date-text"></span>)</h2>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-yellow-50 p-3 rounded-xl border border-yellow-300">
               <select id="payEmpSel" class="border-2 border-yellow-400 rounded-xl px-2.5 py-2 text-sm font-bold bg-white"></select>
@@ -656,7 +860,7 @@
             </div>
 
             <div class="overflow-x-auto border rounded-xl">
-              <table class="w-full text-xs text-left border-collapse">
+              <table class="w-full text-xs text-left">
                 <thead>
                   <tr class="bg-yellow-100 border-b border-yellow-300">
                     <th class="p-2">தேதி</th>
@@ -679,8 +883,8 @@
       <section id="tab-reports" class="hidden space-y-5">
         <div class="bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4 shadow-sm flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 class="text-xl font-extrabold text-amber-950">📑 ரிப்போர்ட் & Report for Admin</h2>
-            <p class="text-xs text-gray-600">From Date முதல் To Date வரை தேர்ந்தெடுத்து கீழே உள்ள எந்தத் தொகை / தேதியையும் கிளிக் செய்து முழு விவரம் பார்க்கலாம்.</p>
+            <h2 class="text-xl font-extrabold text-amber-950" style="margin:0;">📑 ரிப்போர்ட் & Report for Admin</h2>
+            <p class="text-xs text-gray-600" style="margin:2px 0 0 0;">From Date முதல் To Date வரை தேர்ந்தெடுத்து கீழே உள்ள எந்தத் தொகை / தேதியையும் கிளிக் செய்து முழு விவரம் பார்க்கலாம்.</p>
           </div>
           <div class="flex flex-wrap items-end gap-2">
             <div>
@@ -696,45 +900,45 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          <button onclick="openReportBreakup('SALES')" class="bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-2xl p-4 text-left transition shadow-sm">
+          <button onclick="openReportBreakup('SALES')" class="bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4 text-left shadow-sm">
             <div class="text-xs font-extrabold text-amber-900">1. விற்பனை & கேஷ் (Sales & Cash) 🔗</div>
             <div id="rptSalesSummary" class="text-sm font-extrabold text-emerald-800 underline mt-1">₹ 0.00</div>
-            <div class="text-[11px] text-gray-600 mt-1">கிளிக் செய்தால் முழு விவரம் வரும்</div>
+            <div class="text-xs text-gray-600 mt-1">கிளிக் செய்தால் முழு விவரம் வரும்</div>
           </button>
 
-          <button onclick="openReportBreakup('PURCHASE')" class="bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-2xl p-4 text-left transition shadow-sm">
+          <button onclick="openReportBreakup('PURCHASE')" class="bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4 text-left shadow-sm">
             <div class="text-xs font-extrabold text-amber-900">2. பர்சேஸ் பில் (Purchase Bills) 🔗</div>
             <div id="rptPurchaseSummary" class="text-sm font-extrabold text-amber-950 underline mt-1">₹ 0.00</div>
-            <div class="text-[11px] text-gray-600 mt-1">கிளிக் செய்தால் முழு விவரம் வரும்</div>
+            <div class="text-xs text-gray-600 mt-1">கிளிக் செய்தால் முழு விவரம் வரும்</div>
           </button>
 
-          <button onclick="openReportBreakup('PAYROLL')" class="bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-2xl p-4 text-left transition shadow-sm">
+          <button onclick="openReportBreakup('PAYROLL')" class="bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4 text-left shadow-sm">
             <div class="text-xs font-extrabold text-amber-900">3. எம்ப்ளாயி பேரோல் பாக்கி (Payroll Due) 🔗</div>
             <div id="rptPayrollSummary" class="text-sm font-extrabold text-amber-950 underline mt-1">₹ 0.00</div>
-            <div class="text-[11px] text-gray-600 mt-1">கிளிக் செய்தால் முழு விவரம் வரும்</div>
+            <div class="text-xs text-gray-600 mt-1">கிளிக் செய்தால் முழு விவரம் வரும்</div>
           </button>
 
-          <button onclick="openReportBreakup('CANCELLED')" class="bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-400 rounded-2xl p-4 text-left transition shadow-sm">
+          <button onclick="openReportBreakup('CANCELLED')" class="bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4 text-left shadow-sm">
             <div class="text-xs font-extrabold text-amber-900">4. கேன்சல் ஐட்டங்கள் (Cancelled Items) 🔗</div>
             <div id="rptCancelledSummary" class="text-sm font-extrabold text-rose-700 underline mt-1">0 Items</div>
-            <div class="text-[11px] text-gray-600 mt-1">கிளிக் செய்தால் தேதி வாரியாக வரும்</div>
+            <div class="text-xs text-gray-600 mt-1">கிளிக் செய்தால் தேதி வாரியாக வரும்</div>
           </button>
         </div>
 
         <div id="rptBreakupBox" class="hidden bg-amber-50 border-2 border-amber-500 rounded-2xl p-4 shadow space-y-2">
-          <div class="flex items-center justify-between border-b border-amber-300 pb-2">
-            <h3 id="rptBreakupTitle" class="font-extrabold text-amber-950">விவரம் (Breakup)</h3>
-            <button onclick="document.getElementById('rptBreakupBox').classList.add('hidden')" class="text-xs font-extrabold text-rose-700">மூடு [×]</button>
+          <div class="flex items-center justify-between border-b pb-2">
+            <h3 id="rptBreakupTitle" class="font-extrabold text-amber-950" style="margin:0;">விவரம் (Breakup)</h3>
+            <button onclick="document.getElementById('rptBreakupBox').classList.add('hidden')" class="text-xs font-extrabold text-rose-700 bg-white px-2.5 py-1 rounded-lg border">மூடு [×]</button>
           </div>
           <div id="rptBreakupBody" class="space-y-1.5 max-h-60 overflow-y-auto text-xs sm:text-sm"></div>
         </div>
 
         <div class="bg-white border-4 border-yellow-400 rounded-2xl p-5 shadow-md space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-yellow-300 pb-2">
-            <h3 class="text-lg font-extrabold text-amber-950">👑 Report for Admin — தேதி வாரியான வரவு & செலவு அட்டவணை (Click Date for Transactions)</h3>
+            <h3 class="text-lg font-extrabold text-amber-950" style="margin:0;">👑 Report for Admin — தேதி வாரியான வரவு & செலவு அட்டவணை (Click Date for Transactions)</h3>
           </div>
           <div class="overflow-x-auto border rounded-xl">
-            <table class="w-full text-xs sm:text-sm text-left border-collapse">
+            <table class="w-full text-xs sm:text-sm text-left">
               <thead>
                 <tr class="bg-yellow-100 border-b border-yellow-300">
                   <th class="p-2.5">தேதி (Click Date)</th>
@@ -754,7 +958,7 @@
 
         <div class="bg-white border-2 border-yellow-400 rounded-2xl p-5 shadow-sm space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-yellow-300 pb-2">
-            <h3 class="text-lg font-extrabold text-amber-950">👷 தனி எம்ப்ளாயி வரவு-செலவு ரிப்போர்ட் (Individual Employee Statement)</h3>
+            <h3 class="text-lg font-extrabold text-amber-950" style="margin:0;">👷 தனி எம்ப்ளாயி வரவு-செலவு ரிப்போர்ட் (Individual Employee Statement)</h3>
             <select id="rptEmpSelect" onchange="renderIndividualEmployeeReport()" class="border-2 border-yellow-400 rounded-xl px-3 py-1.5 text-sm font-bold bg-yellow-50"></select>
           </div>
           <div id="rptEmpSummaryStrip" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs sm:text-sm"></div>
@@ -763,12 +967,12 @@
 
         <div class="bg-white border-2 border-yellow-400 rounded-2xl p-5 shadow-sm space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-yellow-300 pb-2">
-            <h3 class="text-lg font-extrabold text-amber-950">🏢 பர்சேஸ் பார்ட்டி லெட்ஜர் ரிப்போர்ட் (Purchase Party Ledger & Items Bought)</h3>
+            <h3 class="text-lg font-extrabold text-amber-950" style="margin:0;">🏢 பர்சேஸ் பார்ட்டி லெட்ஜர் ரிப்போர்ட் (Purchase Party Ledger & Items Bought)</h3>
             <select id="rptPartySelect" onchange="renderIndividualPartyReport()" class="border-2 border-yellow-400 rounded-xl px-3 py-1.5 text-sm font-bold bg-yellow-50"></select>
           </div>
           <div id="rptPartySummaryStrip" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs sm:text-sm"></div>
           <div class="overflow-x-auto border rounded-xl">
-            <table class="w-full text-xs sm:text-sm text-left border-collapse">
+            <table class="w-full text-xs sm:text-sm text-left">
               <thead>
                 <tr class="bg-yellow-100 border-b border-yellow-300">
                   <th class="p-2">தேதி</th>
@@ -788,12 +992,12 @@
       <section id="tab-permissions" class="hidden space-y-4">
         <div class="bg-white border-2 border-yellow-400 rounded-2xl p-5 shadow-sm space-y-4">
           <div>
-            <h2 class="text-xl font-extrabold text-amber-950">🔐 யூசர் மெனு அணுகல் & ஸ்டாஃப் அசைன்மெண்ட் (User Menu & Staff Assignment)</h2>
-            <p class="text-xs text-gray-600">Owner / Admin, Admin 2, Manager, Cashier, Staff 1, Staff 2 ஆகியோருக்கு ஸ்டாஃப் பெயரை அசைன் செய்து, எந்தெந்த மெனுக்களைப் பார்க்கலாம் என்பதை டிக் (☑) செய்யவும்.</p>
+            <h2 class="text-xl font-extrabold text-amber-950" style="margin:0;">🔐 யூசர் மெனு அணுகல் & ஸ்டாஃப் அசைன்மெண்ட் (User Menu & Staff Assignment)</h2>
+            <p class="text-xs text-gray-600" style="margin:2px 0 0 0;">Owner / Admin, Admin 2, Manager, Cashier, Staff 1, Staff 2 ஆகியோருக்கு ஸ்டாஃப் பெயரை அசைன் செய்து, எந்தெந்த மெனுக்களைப் பார்க்கலாம் என்பதை டிக் (☑) செய்யவும்.</p>
           </div>
 
           <div class="overflow-x-auto border rounded-xl">
-            <table class="w-full text-xs sm:text-sm border-collapse text-left">
+            <table class="w-full text-xs sm:text-sm text-left">
               <thead>
                 <tr class="bg-yellow-100 border-b border-yellow-300">
                   <th class="p-2.5">யூசர் ரோல் (Internal Role)</th>
@@ -813,8 +1017,8 @@
       <section id="tab-profile" class="hidden space-y-4">
         <div class="bg-white border-4 border-yellow-400 rounded-2xl p-6 shadow-md max-w-3xl mx-auto space-y-4">
           <div class="border-b-2 border-yellow-300 pb-3">
-            <h2 class="text-2xl font-extrabold text-amber-950">🏢 கம்பெனி ப்ரொபைல் (Company Profile)</h2>
-            <p class="text-xs text-gray-600">இங்கு சேமிக்கும் <strong>Company Name</strong> மற்றும் <strong>Address</strong> மட்டுமே மெயின் ஹெட்டிங்கில் தெரியும்; மற்ற GST, Proprietor, Phone, Email விவரங்கள் இங்கு பாதுகாப்பாக இருக்கும்.</p>
+            <h2 class="text-2xl font-extrabold text-amber-950" style="margin:0;">🏢 கம்பெனி ப்ரொபைல் (Company Profile)</h2>
+            <p class="text-xs text-gray-600" style="margin:4px 0 0 0;">இங்கு சேமிக்கும் <strong>Company Name</strong> மற்றும் <strong>Address</strong> மட்டுமே மெயின் ஹெட்டிங்கில் தெரியும்; மற்ற GST, Proprietor, Phone, Email விவரங்கள் இங்கு பாதுகாப்பாக இருக்கும்.</p>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
@@ -842,7 +1046,7 @@
               <label class="block text-xs font-bold text-gray-700 mb-1">Phone Number</label>
               <input id="cpPhone" type="text" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 bg-white" />
             </div>
-            <div class="sm:col-span-2">
+            <div style="grid-column: 1 / -1;">
               <label class="block text-xs font-bold text-gray-700 mb-1">Email Address</label>
               <input id="cpEmail" type="email" class="w-full border-2 border-yellow-300 rounded-xl px-3 py-2 bg-white" />
             </div>
@@ -2007,7 +2211,7 @@
 
       const empTx = db.ledgerEntries.filter(x => x.party.toLowerCase().includes(emp.name.toLowerCase()));
       document.getElementById('rptEmpTxList').innerHTML = empTx.length
-        ? empTx.slice().reverse().map(t => `<div class="flex justify-between bg-yellow-50/70 px-3 py-1.5 rounded-xl border border-yellow-200"><span>📅 ${t.date} | <strong>[${t.cat}]</strong> ${t.note || ''}</span><strong>₹${t.amt.toFixed(2)}</strong></div>`).join('')
+        ? empTx.slice().reverse().map(t => `<div class="flex justify-between bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-300"><span>📅 ${t.date} | <strong>[${t.cat}]</strong> ${t.note || ''}</span><strong>₹${t.amt.toFixed(2)}</strong></div>`).join('')
         : `<p class="text-gray-500 text-xs">தனி பரிவர்த்தனை பதிவுகள் இல்லை.</p>`;
     }
 
@@ -2095,8 +2299,8 @@
             gCashIn += r.cashIn; gUpiIn += r.upiIn; gCardIn += r.cardIn; gCashOut += r.cashOut; gBankOut += r.bankOut;
             const netDay = (r.cashIn + r.upiIn + r.cardIn) - (r.cashOut + r.bankOut);
             return `
-              <tr class="border-b hover:bg-yellow-50">
-                <td class="p-2.5"><button onclick="openReportBreakup('DATE_TX', '${d}')" class="font-extrabold text-amber-900 underline">📅 ${d}</button></td>
+              <tr class="border-b">
+                <td class="p-2.5"><button onclick="openReportBreakup('DATE_TX', '${d}')" class="font-extrabold text-amber-900 underline bg-yellow-50 px-2 py-1 rounded border">📅 ${d}</button></td>
                 <td class="p-2.5 font-bold text-emerald-700">₹${r.cashIn.toFixed(2)}</td>
                 <td class="p-2.5 font-bold text-emerald-700">₹${r.upiIn.toFixed(2)}</td>
                 <td class="p-2.5 font-bold text-emerald-700">₹${r.cardIn.toFixed(2)}</td>
@@ -2143,19 +2347,19 @@
         const mainTitle = getMenuLabel(m);
         const subTitle = db.menuLang === 'en' ? m.tam : m.eng;
         return `
-          <div class="rounded-2xl border-2 border-yellow-400 bg-white overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+          <div class="rounded-2xl border-2 border-yellow-400 bg-white shadow-sm flex flex-col justify-between" style="overflow:hidden;">
             <div onclick="addToOrder(${m.id})" class="cursor-pointer">
-              <img src="${m.img}" alt="${mainTitle}" class="w-full h-24 object-cover border-b border-yellow-200" />
+              <img src="${m.img}" alt="${mainTitle}" class="w-full h-24 object-cover border-b border-yellow-300" />
               <div class="p-2.5">
                 <div class="text-base font-extrabold text-amber-950">${mainTitle}</div>
-                <div class="text-xs font-semibold text-gray-500">${subTitle}</div>
+                <div class="text-xs font-bold text-gray-500">${subTitle}</div>
               </div>
             </div>
             <div class="px-2.5 pb-2.5 flex items-center justify-between gap-1">
               <span onclick="addToOrder(${m.id})" class="cursor-pointer text-base font-extrabold text-amber-950 bg-yellow-200 px-2 py-0.5 rounded-lg">₹ ${m.price}</span>
               ${canEditPrice
                 ? `<button onclick="editMenuPrice(${m.id})" class="gold-btn text-xs font-extrabold px-2 py-1 rounded-lg">${db.menuLang === 'en' ? '✏️ Rate' : '✏️ விலை'}</button>`
-                : `<span class="text-[11px] text-gray-400">🔒</span>`}
+                : `<span class="text-xs text-gray-400">🔒</span>`}
             </div>
           </div>
         `;
@@ -2194,7 +2398,7 @@
             const label = ing.isPrimary && ing.yieldPerKg
               ? `${ing.stockKey} (1 Kg → ${ing.yieldPerKg} pcs)`
               : `${ing.stockKey} (துணைப் பொருள்)`;
-            return `<tr class="border-b"><td class="p-2.5 font-bold">${label}</td><td class="p-2.5">${ing.qty.toFixed(4)} Kg</td><td class="p-2.5">₹${rate}</td><td class="p-2.5 font-extrabold">₹${lc.toFixed(2)}</td><td class="p-2.5"><button onclick="removeRecipeIngredient(${curMenuId}, ${idx})" class="text-rose-700 font-bold text-xs">நீக்கு</button></td></tr>`;
+            return `<tr class="border-b"><td class="p-2.5 font-bold">${label}</td><td class="p-2.5">${ing.qty.toFixed(4)} Kg</td><td class="p-2.5">₹${rate}</td><td class="p-2.5 font-extrabold">₹${lc.toFixed(2)}</td><td class="p-2.5"><button onclick="removeRecipeIngredient(${curMenuId}, ${idx})" class="text-rose-700 font-bold text-xs bg-rose-100 px-2 py-1 rounded">நீக்கு</button></td></tr>`;
           }).join('')
         : `<tr><td colspan="5" class="p-3 text-center text-gray-400">மூலப்பொருள் சேர்க்கவும்</td></tr>`;
 
@@ -2267,23 +2471,23 @@
 
       document.getElementById('btnLangTa').className = !isEn
         ? 'gold-btn font-extrabold text-xs px-3 py-1 rounded-lg'
-        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg whitespace-nowrap shrink-0';
+        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg shrink-0';
       document.getElementById('btnLangEn').className = isEn
         ? 'gold-btn font-extrabold text-xs px-3 py-1 rounded-lg'
-        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg whitespace-nowrap shrink-0';
+        : 'bg-white text-amber-950 border-2 border-amber-500 font-extrabold text-xs px-3 py-1 rounded-lg shrink-0';
 
       const allowedIds = db.permissions[db.role] || ['pos'];
       const leftMenus = ALL_MENUS.filter(m => allowedIds.includes(m.id) && !m.rightSide);
       const rightMenus = ALL_MENUS.filter(m => allowedIds.includes(m.id) && m.rightSide);
       document.getElementById('navBar').innerHTML = `
-        <div class="flex flex-wrap items-center gap-2">
+        <div id="navBarLeft">
           ${leftMenus.map(it => {
-            const activeCls = db.activeTab === it.id ? 'ring-2 ring-amber-950 brightness-105' : '';
-            return `<button onclick="switchTab('${it.id}')" class="gold-btn px-3.5 py-2 rounded-xl text-sm font-extrabold ${activeCls}">${isEn ? it.en : it.ta}</button>`;
+            const activeStyle = db.activeTab === it.id ? 'outline: 2px solid #451a03; outline-offset: 1px;' : '';
+            return `<button onclick="switchTab('${it.id}')" style="${activeStyle}" class="gold-btn px-3.5 py-2 rounded-xl text-sm font-extrabold">${isEn ? it.en : it.ta}</button>`;
           }).join('')}
         </div>
-        <div class="flex flex-wrap items-center gap-2 shrink-0">
-          ${rightMenus.map(it => `<button onclick="switchTab('${it.id}')" class="bg-white text-amber-950 border-2 border-amber-600 hover:bg-yellow-50 px-3.5 py-2 rounded-xl text-sm font-extrabold whitespace-nowrap shrink-0">${isEn ? it.en : it.ta}</button>`).join('')}
+        <div id="navBarRight">
+          ${rightMenus.map(it => `<button onclick="switchTab('${it.id}')" style="white-space:nowrap;" class="bg-white text-amber-950 border-2 border-amber-600 px-3.5 py-2 rounded-xl text-sm font-extrabold shrink-0">${isEn ? it.en : it.ta}</button>`).join('')}
         </div>
       `;
 
@@ -2302,14 +2506,15 @@
         const ord = db.orders[t];
         const activeList = (ord?.items || []).filter(i => !i.cancelled);
         const isSelected = db.activeTable === t;
-        let colorCls = 'bg-white text-gray-900 border-gray-300';
+        let colorCls = 'bg-white text-gray-900 border-yellow-300';
         let stText = isEn ? 'Free' : 'காலி';
         if (activeList.length) {
-          if (ord.status === 'pay_ready') { colorCls = 'bg-emerald-300 text-emerald-950 border-emerald-600 font-extrabold'; stText = isEn ? 'Pay Ready' : 'பணம் தர'; }
+          if (ord.status === 'pay_ready') { colorCls = 'bg-emerald-300 text-amber-950 border-amber-600 font-extrabold'; stText = isEn ? 'Pay Ready' : 'பணம் தர'; }
           else if (ord.status === 'kot_sent') { colorCls = 'bg-amber-300 text-amber-950 border-amber-600 font-extrabold'; stText = isEn ? 'KOT Sent' : 'KOT சென்றது'; }
-          else { colorCls = 'bg-sky-200 text-sky-950 border-sky-500 font-extrabold'; stText = isEn ? 'Ordering' : 'ஆர்டர்'; }
+          else { colorCls = 'bg-sky-200 text-amber-950 border-amber-500 font-extrabold'; stText = isEn ? 'Ordering' : 'ஆர்டர்'; }
         }
-        return `<button onclick="selectTable('${t}')" class="p-2.5 rounded-xl border-2 text-sm text-center ${colorCls} ${isSelected ? 'ring-4 ring-yellow-400' : ''}">${t}<br><span class="text-[11px]">${stText}</span></button>`;
+        const selStyle = isSelected ? 'outline: 3px solid #f59e0b; outline-offset: 1px;' : '';
+        return `<button onclick="selectTable('${t}')" style="${selStyle}" class="p-2.5 rounded-xl border-2 text-sm text-center ${colorCls}">${t}<br><span style="font-size:11px;">${stText}</span></button>`;
       }).join('');
 
       renderMenuGrid();
@@ -2324,21 +2529,21 @@
         ? activeList.map(i => {
             const sub = i.price * i.qty;
             return `
-              <div class="flex items-center justify-between bg-yellow-50/70 p-2.5 rounded-xl border border-yellow-300">
+              <div class="flex items-center justify-between bg-yellow-50 p-2.5 rounded-xl border border-yellow-300">
                 <div>
                   <div class="text-base font-extrabold text-amber-950">${getMenuLabel(i)}</div>
-                  <div class="text-xs font-semibold text-gray-600">₹${i.price} × ${i.qty} = <strong>₹${sub}</strong></div>
+                  <div class="text-xs font-bold text-gray-600">₹${i.price} × ${i.qty} = <strong>₹${sub}</strong></div>
                 </div>
                 <div class="flex items-center gap-1">
-                  <button onclick="updateOrderQty(${i.id}, -1)" class="w-7 h-7 rounded-lg bg-amber-100 text-amber-950 font-extrabold">-</button>
+                  <button onclick="updateOrderQty(${i.id}, -1)" style="width:28px;height:28px;" class="rounded-lg bg-amber-100 text-amber-950 font-extrabold border">-</button>
                   <span class="px-1.5 font-extrabold">${i.qty}</span>
-                  <button onclick="updateOrderQty(${i.id}, 1)" class="w-7 h-7 rounded-lg gold-btn font-extrabold">+</button>
-                  <button onclick="cancelOrderItem(${i.id})" class="px-2 h-7 rounded-lg bg-rose-100 text-rose-800 font-extrabold text-xs">Cancel</button>
+                  <button onclick="updateOrderQty(${i.id}, 1)" style="width:28px;height:28px;" class="rounded-lg gold-btn font-extrabold">+</button>
+                  <button onclick="cancelOrderItem(${i.id})" style="height:28px;" class="px-2 rounded-lg bg-rose-100 text-rose-800 font-extrabold text-xs border">Cancel</button>
                 </div>
               </div>
             `;
           }).join('')
-        : `<p class="text-center text-gray-400 py-8 text-sm">${isEn ? 'Tap menu items to take order' : 'மெனுவில் கிளிக் செய்து ஆர்டர் எடுக்கவும்'}</p>`;
+        : `<p class="text-center text-gray-500 p-6 text-sm">${isEn ? 'Tap menu items to take order' : 'மெனுவில் கிளிக் செய்து ஆர்டர் எடுக்கவும்'}</p>`;
 
       document.getElementById('orderSubTotal').textContent = subTotal.toFixed(2);
       document.getElementById('orderDiscShow').textContent = disc.toFixed(2);
@@ -2347,12 +2552,12 @@
 
       document.getElementById('settledBillsReprintList').innerHTML = db.settledBills.length
         ? db.settledBills.slice().reverse().map(b => `
-            <div class="flex flex-wrap items-center justify-between gap-2 bg-yellow-50/70 px-3 py-2 rounded-xl border border-yellow-300">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-yellow-50 px-3 py-2 rounded-xl border border-yellow-300">
               <span><strong>Bill #${b.billNo}</strong> | 📅 ${b.date} ${b.time} | <strong>${b.table}</strong> (${b.mode}) — <strong>₹${b.netTotal.toFixed(2)}</strong></span>
               <button onclick="reprintSettledBill(${b.billNo})" class="gold-btn font-extrabold px-3 py-1 rounded-lg text-xs">🖨️ Reprint Copy</button>
             </div>
           `).join('')
-        : `<p class="text-gray-400 text-xs">முடிந்த பில்கள் இன்னும் இல்லை.</p>`;
+        : `<p class="text-gray-500 text-xs">முடிந்த பில்கள் இன்னும் இல்லை.</p>`;
 
       document.getElementById('cancelledItemsReport').innerHTML = db.cancelledItems.length
         ? db.cancelledItems.slice().reverse().map(c => `
@@ -2368,8 +2573,8 @@
         .filter(([_, v]) => v.items.length);
 
       document.getElementById('kitchenTvGrid').innerHTML = activeEntries.length
-        ? activeEntries.map(([t, v]) => `<div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 space-y-2 shadow-sm"><div class="flex justify-between items-center border-b border-yellow-300 pb-2"><span class="text-2xl font-extrabold text-amber-950">${t}</span><span class="text-xs gold-btn font-extrabold px-2.5 py-1 rounded-full">${v.staff}</span></div><ul class="space-y-1.5 text-lg text-amber-950">${v.items.map(i => `<li class="flex justify-between font-bold"><span>${getMenuLabel(i)}</span><span class="text-amber-700">× ${i.qty}</span></li>`).join('')}</ul></div>`).join('')
-        : `<p class="col-span-3 text-center text-amber-900/70 py-12 text-xl">${isEn ? 'No active kitchen orders' : 'தற்போது கிச்சனில் புதிய ஆர்டர்கள் இல்லை'}</p>`;
+        ? activeEntries.map(([t, v]) => `<div class="bg-white border-2 border-yellow-400 rounded-2xl p-4 space-y-2 shadow-sm"><div class="flex justify-between items-center border-b border-yellow-300 pb-2"><span class="text-2xl font-extrabold text-amber-950">${t}</span><span class="text-xs gold-btn font-extrabold px-2.5 py-1 rounded-full">${v.staff}</span></div><ul class="space-y-1.5 text-lg text-amber-950" style="list-style:none;padding:0;margin:0;">${v.items.map(i => `<li class="flex justify-between font-bold"><span>${getMenuLabel(i)}</span><span class="text-amber-900">× ${i.qty}</span></li>`).join('')}</ul></div>`).join('')
+        : `<p class="text-center text-amber-900 p-6 text-xl" style="grid-column:1/-1;">${isEn ? 'No active kitchen orders' : 'தற்போது கிச்சனில் புதிய ஆர்டர்கள் இல்லை'}</p>`;
 
       const pSel = document.getElementById('purPartySelect');
       const curP = pSel.value;
@@ -2377,19 +2582,19 @@
       if (curP) pSel.value = curP;
 
       document.getElementById('partyMasterList').innerHTML = db.parties.map(p => `
-        <div class="p-2 rounded-xl bg-yellow-50 border border-yellow-200">
+        <div class="p-2 rounded-xl bg-yellow-50 border border-yellow-300">
           <div class="font-extrabold text-amber-950">${p.name}</div>
           <div class="text-gray-600">${p.addr || ''} ${p.phone ? `| 📞 ${p.phone}` : ''} ${p.gst ? `| GST: ${p.gst}` : ''} ${p.acc ? `| A/c: ${p.acc}` : ''}</div>
         </div>
       `).join('');
 
       document.getElementById('draftItemsBody').innerHTML = db.draftPurItems.length
-        ? db.draftPurItems.map((it, idx) => `<tr class="border-b"><td class="p-2">${it.date || dtStr}</td><td class="p-2 font-bold">${getMenuLabel(it)}</td><td class="p-2">${it.qty}</td><td class="p-2">₹${it.rate}</td><td class="p-2">₹${it.cgst.toFixed(2)}</td><td class="p-2">₹${it.sgst.toFixed(2)}</td><td class="p-2">₹${it.igst.toFixed(2)}</td><td class="p-2 font-extrabold">₹${it.total.toFixed(2)}</td><td class="p-2 flex gap-1"><button onclick="modifyDraftItem(${idx})" class="text-amber-800 font-bold">Edit</button><button onclick="removeDraftItem(${idx})" class="text-rose-700 font-bold">×</button></td></tr>`).join('')
-        : `<tr><td colspan="9" class="p-3 text-center text-gray-400">ஐட்டம் சேர்க்கவும்</td></tr>`;
+        ? db.draftPurItems.map((it, idx) => `<tr class="border-b"><td class="p-2">${it.date || dtStr}</td><td class="p-2 font-bold">${getMenuLabel(it)}</td><td class="p-2">${it.qty}</td><td class="p-2">₹${it.rate}</td><td class="p-2">₹${it.cgst.toFixed(2)}</td><td class="p-2">₹${it.sgst.toFixed(2)}</td><td class="p-2">₹${it.igst.toFixed(2)}</td><td class="p-2 font-extrabold">₹${it.total.toFixed(2)}</td><td class="p-2 flex gap-1"><button onclick="modifyDraftItem(${idx})" class="text-amber-900 font-bold bg-yellow-100 px-2 py-0.5 rounded border">Edit</button><button onclick="removeDraftItem(${idx})" class="text-rose-700 font-bold bg-rose-100 px-2 py-0.5 rounded border">×</button></td></tr>`).join('')
+        : `<tr><td colspan="9" class="p-3 text-center text-gray-500">ஐட்டம் சேர்க்கவும்</td></tr>`;
 
       document.getElementById('savedBillsList').innerHTML = db.savedPurBills.length
         ? db.savedPurBills.slice().reverse().map(b => `
-            <div class="p-2.5 rounded-xl border border-yellow-300 bg-yellow-50/70 flex flex-wrap items-center justify-between gap-2">
+            <div class="p-2.5 rounded-xl border border-yellow-300 bg-yellow-50 flex flex-wrap items-center justify-between gap-2">
               <div>
                 <div class="font-extrabold text-amber-950">📅 ${b.date} | ${b.party} — ₹${b.total.toFixed(2)}</div>
                 <div class="text-gray-500">Status: <strong>${b.paid === 'YES' ? 'PAID (FROZEN)' : 'UNPAID'}</strong></div>
@@ -2397,12 +2602,12 @@
               <div class="flex items-center gap-1.5">
                 ${b.jpegData ? `<button onclick="openBillZoom(${b.id})" class="gold-btn font-extrabold px-2.5 py-1 rounded-lg">🔍 JPEG</button>` : ''}
                 ${b.frozen
-                  ? `<span class="px-2.5 py-1 rounded-lg bg-emerald-200 text-emerald-950 font-extrabold">🔒 YES</span>`
+                  ? `<span class="px-2.5 py-1 rounded-lg bg-emerald-300 text-amber-950 font-extrabold">🔒 YES</span>`
                   : `<select onchange="changeSavedBillPaid(${b.id}, this.value)" class="border rounded-lg px-2 py-1 font-bold bg-white"><option value="NO" selected>No</option><option value="YES">Yes</option></select>`}
               </div>
             </div>
           `).join('')
-        : `<p class="text-gray-400 text-center py-4">பர்சேஸ் பில்கள் இல்லை</p>`;
+        : `<p class="text-gray-500 text-center p-4">பர்சேஸ் பில்கள் இல்லை</p>`;
 
       const lCatSel = document.getElementById('ldgCat');
       const curCat = lCatSel.value;
@@ -2420,8 +2625,8 @@
       if (curLP && allEntities.includes(curLP)) lPartySel.value = curLP;
 
       document.getElementById('ledgerEntriesBox').innerHTML = db.ledgerEntries.length
-        ? db.ledgerEntries.slice().reverse().map(x => `<div class="p-2.5 rounded-xl border border-yellow-300 bg-white flex flex-wrap items-center justify-between gap-2"><div><div class="font-extrabold text-amber-950">📅 ${x.date} | [${x.cat}] ${x.party} — ₹${x.amt.toFixed(2)}</div><div class="text-xs text-gray-500">${x.mode} (${x.dir}) | ${x.note || ''}</div></div><div class="flex gap-1.5"><button onclick="printReceipt(${x.id})" class="gold-btn font-extrabold px-2.5 py-1 rounded-lg text-xs">🧾 Receipt</button><button onclick="modifyLedgerEntry(${x.id})" class="bg-yellow-100 text-amber-950 font-bold px-2.5 py-1 rounded-lg text-xs">Edit</button><button onclick="deleteLedgerEntry(${x.id})" class="bg-rose-100 text-rose-800 font-bold px-2.5 py-1 rounded-lg text-xs">Delete</button></div></div>`).join('')
-        : `<p class="text-gray-400 text-center py-6">லெட்ஜர் பதிவுகள் இல்லை</p>`;
+        ? db.ledgerEntries.slice().reverse().map(x => `<div class="p-2.5 rounded-xl border border-yellow-300 bg-white flex flex-wrap items-center justify-between gap-2"><div><div class="font-extrabold text-amber-950">📅 ${x.date} | [${x.cat}] ${x.party} — ₹${x.amt.toFixed(2)}</div><div class="text-xs text-gray-500">${x.mode} (${x.dir}) | ${x.note || ''}</div></div><div class="flex gap-1.5"><button onclick="printReceipt(${x.id})" class="gold-btn font-extrabold px-2.5 py-1 rounded-lg text-xs">🧾 Receipt</button><button onclick="modifyLedgerEntry(${x.id})" class="bg-yellow-100 text-amber-950 font-bold px-2.5 py-1 rounded-lg text-xs border">Edit</button><button onclick="deleteLedgerEntry(${x.id})" class="bg-rose-100 text-rose-800 font-bold px-2.5 py-1 rounded-lg text-xs border">Delete</button></div></div>`).join('')
+        : `<p class="text-gray-500 text-center p-6">லெட்ஜர் பதிவுகள் இல்லை</p>`;
 
       document.getElementById('soldItemsReportBody').innerHTML = db.menu.map(m => {
         const sq = db.soldItems[m.id] || 0;
@@ -2465,8 +2670,8 @@
       renderCostingSection();
 
       document.getElementById('desigChips').innerHTML = db.designations.map((d, idx) => `
-        <span class="bg-white border border-amber-400 px-2.5 py-1 rounded-lg font-bold text-amber-950 flex items-center gap-1">
-          ${d} <button onclick="deleteDesignation(${idx})" class="text-rose-700 font-extrabold">×</button>
+        <span class="bg-white border border-amber-500 px-2.5 py-1 rounded-lg font-bold text-amber-950 flex items-center gap-1">
+          ${d} <button onclick="deleteDesignation(${idx})" class="text-rose-700 font-extrabold bg-rose-100 px-1.5 rounded">×</button>
         </span>
       `).join('');
 
@@ -2487,12 +2692,12 @@
         return `
           <tr class="border-b">
             <td class="p-2">${dtStr}</td>
-            <td class="p-2 font-bold text-amber-950">${e.name}<br><span class="text-[11px] text-amber-800">${e.desig}</span></td>
-            <td class="p-2 text-[11px]">Addr: ${e.addr || '-'}<br>Mob: ${e.phone || '-'}<br>ID: ${e.aadhaar || '-'}<br>Bank: ${e.bank || '-'}</td>
+            <td class="p-2 font-bold text-amber-950">${e.name}<br><span style="font-size:11px;" class="text-amber-900">${e.desig}</span></td>
+            <td class="p-2" style="font-size:11px;">Addr: ${e.addr || '-'}<br>Mob: ${e.phone || '-'}<br>ID: ${e.aadhaar || '-'}<br>Bank: ${e.bank || '-'}</td>
             <td class="p-2">${e.daysWorked || 0}d × ₹${e.dailyWage || 0} = <strong>₹${grossEarned}</strong></td>
             <td class="p-2 text-rose-700">Adv: ₹${e.advance || 0}<br>Paid: ₹${e.midSalary || 0}</td>
             <td class="p-2 font-extrabold ${balancePayable >= 0 ? 'text-emerald-700' : 'text-rose-700'}">₹ ${balancePayable.toFixed(2)}</td>
-            <td class="p-2"><button onclick="deleteEmployee(${e.id})" class="text-rose-700 font-bold text-xs">Delete</button></td>
+            <td class="p-2"><button onclick="deleteEmployee(${e.id})" class="text-rose-700 font-bold text-xs bg-rose-100 px-2 py-1 rounded border">Delete</button></td>
           </tr>
         `;
       }).join('');
@@ -2515,14 +2720,14 @@
               </div>
             </td>
             <td class="p-2">
-              <input type="text" value="${curAssign.pass}" onchange="updateUserSlotAssignment('${slot.key}', 'pass', this.value)" class="border rounded-lg px-2 py-1 text-xs w-28 bg-white font-mono" />
+              <input type="text" value="${curAssign.pass}" onchange="updateUserSlotAssignment('${slot.key}', 'pass', this.value)" class="border rounded-lg px-2 py-1 text-xs bg-white" style="width:110px;" />
             </td>
           </tr>
         `;
       }).join('');
 
       document.getElementById('userPermissionMatrix').innerHTML = `
-        <table class="w-full text-xs sm:text-sm border-collapse text-left">
+        <table class="w-full text-xs sm:text-sm text-left">
           <thead>
             <tr class="bg-yellow-100 border-b border-yellow-300">
               <th class="p-2">${isEn ? 'Menu' : 'மெனு'}</th>
@@ -2535,7 +2740,7 @@
                 <td class="p-2 font-bold">${isEn ? m.en : m.ta}</td>
                 ${USER_SLOTS.map(s => {
                   const checked = (db.permissions[s.key] || []).includes(m.id) ? 'checked' : '';
-                  return `<td class="p-2 text-center"><input type="checkbox" ${checked} onchange="togglePermission('${s.key}', '${m.id}')" class="w-4 h-4 accent-amber-500 cursor-pointer" /></td>`;
+                  return `<td class="p-2 text-center"><input type="checkbox" ${checked} onchange="togglePermission('${s.key}', '${m.id}')" style="width:16px;height:16px;" class="cursor-pointer" /></td>`;
                 }).join('')}
               </tr>
             `).join('')}
